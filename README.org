@@ -1,0 +1,12 @@
+* Heifetz Discord Bot
+
+The main purpose of this discord bot is to create a practice room functionality in which people can join a practice room and practice in an environment where others can then join, listen, and encourage.
+
+* Version Control
+
+** Version 1
+The first version of this bot will simply be the voice channel functionality.
+
+A user will be able to join a voice channel and if they are the first person there, then they will be unmuted and be able to practice.
+
+If someone else is already in the channel practicing then they will be server muted.
