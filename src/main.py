@@ -32,7 +32,7 @@ async def on_ready():
     print('------')
     # await bot.change_presence(game=discord.Game(name='Adobe Connect'))
 
-@bot.command
+@bot.command()
 async def help(ctx):
     embed=discord.Embed(title="Help", description="A guide to the useful commands for the practice bot.", color=0x3c7f61)
     embed.set_author(name="Heifetz Practice Bot")
