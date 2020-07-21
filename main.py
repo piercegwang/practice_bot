@@ -12,7 +12,7 @@ handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(me
 logger.addHandler(handler)
 
 TOKEN = ''
-with open('../../tokens/heifetz_token.json') as json_file:
+with open('../tokens/heifetz_token.json') as json_file:
     atoken = json.load(json_file)
     TOKEN = atoken['token']
 
@@ -31,12 +31,6 @@ async def on_ready():
     print('------')
     # await bot.change_presence(game=discord.Game(name='Adobe Connect'))
 
-if __name__ == "__main__":
-    for extension in startup_extensions:
-        try:
-            bot.load_extension(extension)
-        except Exception as e:
-            exc = '{}: {}'.format(type(e).__name__, e)
-            print('Failed to load extension {}\n{}'.format(extension, exc))
+bot.load_extension("practice")
 
 bot.run(TOKEN)

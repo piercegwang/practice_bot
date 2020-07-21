@@ -1,83 +1,78 @@
 import discord
 from discord.ext import commands
 import datetime
+import json
 
 room_ids = {}
 with open('rooms.json') as json_file:
     room_ids = json.load(json_file)["rooms"]
 
+print(list(room_ids.keys()))
+
 class Practice(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-    async def update_permissions(self, member, before_channel_id, after_channel_id):
-        """Documentation for update_permissions
-
-        Args: member, channel_id
-        :param member: a discord.py member object
-        :param channel_id: an integer representation of the channel id
-        :param status: A boolean describing the movement of the user. True for joining the channel.
-        
-        :returns: 
-        :raises keyError: 
-        """
-        if rooms_ids[str(channel_id)]["practicing"] != member:
-            if after_channel_id:
-                await member.edit(mute=True)
-            elif before_channel_id:
-                await member.edit(mute=False)
-        elif rooms_ids[str(channel_id)]["practicing"] == member:
-            await member.edit(mute=False)
                 
     @commands.Cog.listener()
-    async def on_voice_status_update(self, member, before, after):
-        if before.channel is None and after.channel is not None: # User is joining a channel
-            if after.channel.id in list(room_ids.keys()):
-                if room_ids[str(after.channel.id)]["practicing"] == 0: # No one is practicing yet
-                    room_ids[after.channel.id]["practicing"] = member
-                    await update_permissions(self, member, before.channel.id, after.channel.id)
-                else: # Someone is practicing
-                    await update_permissions(self, member, before.channel.id, after.channel.id)
+    async def on_voice_state_update(self, member, before, after):
+        if before.channel != after.channel and after.channel is not None: # User is joining or changing channel
+            if str(after.channel.id) in list(room_ids.keys()):
+                if room_ids[str(after.channel.id)]["practicing"] == 0 and len(after.channel.members) == 1: # No one is practicing yet
+                    room_ids[str(after.channel.id)]["practicing"] = member
+                    print("practicing set")
+                    await member.edit(mute=False)
+                else: # Someone is practicing or other people are already in the channel
+                    await member.edit(mute=True)
+            else:
+                await member.edit(mute=False)
 
         elif after.channel is None and before.channel is not None: # User is leaving a channel
-            if before.channel.id in list(room_ids.keys())
-                if rooms_ids[str(before.channel.id)]["practicing"] == member: # Person leaving the channel is the person practicing
-                    room_ids[before.channel.id]["practicing"] = 0
-                    await update_permissions(self, member, before.channel.id, after.channel.id)
+            if str(before.channel.id) in list(room_ids.keys()):
+                if room_ids[str(before.channel.id)]["practicing"] == member: # Person leaving the channel is the person practicing
+                    room_ids[str(before.channel.id)]["practicing"] = 0
 
                     if room_ids[str(before.channel.id)]["started_time"] != 0: # They started a practice session
                         duration = (datetime.datetime.now() - room_ids[str(before.channel.id)]["started_time"]).total_seconds()
-                        duration = (int(duration / 3600), (duration % 3600)/60)
-                else: # Person leaving the channel is not the person practicing
-                    await update_permissions(self, member, before.channel.id, after.channel.id)
+                        duration = (int(duration / 3600), (duration % 3600)/60) #Not doing anything with this time yet
+                        room_ids[str(before.channel.id)]["started_time"] = 0 #reset time
     
     @commands.command(pass_context=True)
-    async def practice(self, ctx, member : discord.Member):
+    async def practice(self, ctx):
         """Start a practice session."""
-        member = member or ctx.author
-        if member.voice.channel.id in list(room_ids.keys()):
-            if room_ids[str(member.voice.channel.id)]["practicing"] == member and room_ids[str(member.voice.channel.id)]["started_time"] == 0:
-                await room_ids[str(member.voice.channel.id)]["started_time"] = datetime.datetime.now()
-                await ctx.send(f'{member.mention}, [X] You are now practicing.')
+        member = ctx.author
+        if member.voice == None:
+            await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
+        elif str(member.voice.channel.id) in list(room_ids.keys()):
+            print("member is in voice")
+            if (room_ids[str(member.voice.channel.id)]["practicing"] == member or room_ids[str(member.voice.channel.id)]["practicing"] == 0) and room_ids[str(member.voice.channel.id)]["started_time"] == 0:
+                room_ids[str(member.voice.channel.id)]["started_time"] = datetime.datetime.now()
+                room_ids[str(member.voice.channel.id)]["practicing"] = member
+                await member.edit(mute=False)
+                await ctx.send(member.mention + ", [X] You are now practicing.")
             else:
-                await ctx.send(f'{member.mention}, [ ] Practice session not started. You may already be practicing or someone else may be practicing!')
+                await ctx.send(member.mention + ", [ ] Practice session not started. You may already be practicing or someone else may be practicing!")
         else:
-            await ctx.send(f'{member.mention}, You must be in one of the practice room voice channels to use this command!')
+            await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
                 
 
     @commands.command(pass_context=True)
-    async def stop(self, ctx, member : discord.Member):
+    async def stop(self, ctx):
         """Stop a practice session."""
-        member = member or ctx.author
-        if member.voice.channel.id in list(room_ids.keys()):
+        member = ctx.author
+        if member.voice == None:
+            await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
+        elif str(member.voice.channel.id) in list(room_ids.keys()):
             if room_ids[str(member.voice.channel.id)]["practicing"] == member and room_ids[str(member.voice.channel.id)]["started_time"] != 0:
-                duration = (datetime.datetime.now() - room_ids[str(before.channel.id)]["started_time"]).total_seconds()
-                duration = (int(duration / 3600), (duration % 3600)/60)
-                await ctx.send(f'{member.mention}, [ ] You\'re no longer practicing.\nThe user who was practicing has left or does not want to practice anymore. The first person to say "$practice" will be able to practice in this channel.\nThe user practiced for {duration[0]} hours and {duration[1]} minutes')
+                duration = (datetime.datetime.now() - room_ids[str(member.voice.channel.id)]["started_time"]).total_seconds()
+                duration = [int(duration / 3600), (duration % 3600)/60]
+                room_ids[str(member.voice.channel.id)]["started_time"] = 0
+                room_ids[str(member.voice.channel.id)]["practicing"] = 0
+                await member.edit(mute=True)
+                await ctx.send(member.mention +  ", [ ] You're no longer practicing.\nThe user who was practicing has left or does not want to practice anymore. The first person to say \"$practice\" will be able to practice in this channel.\nThe user practiced for " + str(duration[0]) + " hours and " + str(duration[1]) + " minutes")
             else:
-                await ctx.send(f'{member.mention}, [ ] No practice session currently exists. You may not yet be practicing or someone else may be practicing!')
+                await ctx.send(member.mention + ", [ ] No practice session currently exists. You may not yet be practicing or someone else may be practicing!")
         else:
-            await ctx.send(f'{member.mention}, You must be in one of the practice room voice channels to use this command!')
+            await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
         
 
     @commands.group(pass_context=True)
@@ -91,6 +86,5 @@ class Practice(commands.Cog):
         """Is the bot cool?"""
         await self.bot.say('Yes, the bot is cool.')
 
-
 def setup(bot):
-    bot.add_cog(Members(bot))
+    bot.add_cog(Practice(bot))
