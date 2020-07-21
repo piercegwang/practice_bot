@@ -32,7 +32,7 @@ async def on_ready():
 
 @bot.command
 async def help(pass_context):
-    
+    pass
 
 bot.load_extension("practice")
 

@@ -3,7 +3,7 @@ from discord.ext import commands
 import datetime
 import pickle
 
-with open('../data/database.pickle', rb) as pickling_off:
+with open('../data/database.pickle', "rb") as pickling_off:
     database_template = pickle.load(pickling_off)
     database = database_template
 
@@ -83,7 +83,7 @@ class Practice(commands.Cog):
 
     @commands.command(pass_context=True)
     async def add_practice_room(self, ctx, channel_id):
-        try int(channel_id):
+        if channel_id.isdigit():
             channel_id = int(channel_id)
             if ctx.author.guild.id in database:
                 database_template[ctx.author.guild.id][channel_id] = {"practicing": 0, "started_time": 0}
@@ -91,9 +91,9 @@ class Practice(commands.Cog):
             else:
                 database_template[ctx.author.guild.id] = {channel_id: {"practicing": 0, "started_time": 0}}
                 database[ctx.author.guild.id] = {channel_id: {"practicing": 0, "started_time": 0}}
-            with open('database.pickle', wb) as pickling_on:
+            with open('database.pickle', "wb") as pickling_on:
                 pickle.dump(database_template, pickling_on)
-        except:
+        else:
             ctx.send("Please enter a valid channel id!")
 
 
