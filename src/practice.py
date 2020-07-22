@@ -14,32 +14,36 @@ class Practice(commands.Cog):
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         if member.guild.id in database:
-            if before.channel != after.channel and after.channel is not None: # User is joining or changing channel
-                if after.channel.id in database[member.guild.id]:
-                    if database[member.guild.id][after.channel.id]["practicing"] == 0 and len(after.channel.members) == 1: # No one is practicing yet
-                        database[member.guild.id][after.channel.id]["practicing"] = member
-                        print(member.mention + " is unofficially practicing")
+            if before.channel != after.channel:
+                if after.channel is not None: # User is joining a channel
+                    if after.channel.id in database[member.guild.id]:
+                        if database[member.guild.id][after.channel.id]["practicing"] == 0 and len(after.channel.members) == 1: # No one is practicing yet
+                            database[member.guild.id][after.channel.id]["practicing"] = member
+                            print(member.mention + " is unofficially practicing")
+                            await member.edit(mute=False)
+                        else: # Someone is practicing or other people are already in the channel
+                            await member.edit(mute=True)
+                    else:
                         await member.edit(mute=False)
-                    else: # Someone is practicing or other people are already in the channel
-                        await member.edit(mute=True)
-                else:
-                    await member.edit(mute=False)
 
-            elif after.channel is None and before.channel is not None: # User is leaving a channel
-                if before.channel.id in database[member.guild.id]:
-                    if database[member.guild.id][before.channel.id]["practicing"] == member: # Person leaving the channel is the person practicing
-                        database[member.guild.id][before.channel.id]["practicing"] = 0
-                        database[member.guild.id][before.channel.id]["song"] = ""
-
-                        if database[member.guild.id][before.channel.id]["started_time"] != 0: # They had a practice session
-                            duration = (datetime.datetime.now() - database[member.guild.id][member.voice.channel.id]["started_time"]).total_seconds()
-                            duration = [int(duration / 3600), int((duration % 3600)/60)]
-                            database[member.guild.id][before.channel.id]["started_time"] = 0 #reset time
+                if before.channel is not None: # User is leaving a channel
+                    if before.channel.id in database[member.guild.id]:
+                        if database[member.guild.id][before.channel.id]["practicing"] == member: # Person leaving the channel is the person practicing
+                            database[member.guild.id][before.channel.id]["practicing"] = 0
                             database[member.guild.id][before.channel.id]["song"] = ""
+                            if len(before.channel.members) > 0:
+                                for user in before.channel.members:
+                                    await user.edit(mute=True)
 
-                    elif len(before.channel.members) == 0: # No one left in the channel
-                        database[member.guild.id][before.channel.id]["practicing"] = 0
-                        database[member.guild.id][before.channel.id]["song"] = ""
+                            if database[member.guild.id][before.channel.id]["started_time"] != 0: # They had a practice session
+                                duration = (datetime.datetime.now() - database[member.guild.id][before.channel.id]["started_time"]).total_seconds()
+                                duration = (str(int(duration / 3600)), str(int((duration % 3600)/60)))
+                                database[member.guild.id][before.channel.id]["started_time"] = 0 #reset time
+                                database[member.guild.id][before.channel.id]["song"] = ""
+
+                        elif len(before.channel.members) == 0: # No one left in the channel
+                            database[member.guild.id][before.channel.id]["practicing"] = 0
+                            database[member.guild.id][before.channel.id]["song"] = ""
     
     @commands.command(pass_context=True)
     async def practice(self, ctx):
@@ -72,12 +76,12 @@ class Practice(commands.Cog):
             elif member.voice.channel.id in database[member.guild.id]:
                 if database[member.guild.id][member.voice.channel.id]["practicing"] == member and database[member.guild.id][member.voice.channel.id]["started_time"] != 0:
                     duration = (datetime.datetime.now() - database[member.guild.id][member.voice.channel.id]["started_time"]).total_seconds()
-                    duration = [int(duration / 3600), int((duration % 3600)/60)]
+                    duration = (str(int(duration / 3600)), str(int((duration % 3600)/60)))
                     database[member.guild.id][member.voice.channel.id]["started_time"] = 0
                     database[member.guild.id][member.voice.channel.id]["practicing"] = 0
                     database[member.guild.id][member.voice.channel.id]["song"] = ""
                     await member.edit(mute=True)
-                    await ctx.send(member.mention +  ", [ ] You're no longer practicing.\nThe user who was practicing has left or does not want to practice anymore. The first person to say \"$practice\" will be able to practice in this channel.\nThe user practiced for " + str(duration[0]) + " hours and " + str(duration[1]) + " minutes")
+                    await ctx.send(member.mention +  ", [ ] You're no longer practicing.\nThe user who was practicing has left or does not want to practice anymore. The first person to say \"$practice\" will be able to practice in this channel.\nThe user practiced for " + duration[0] + " hours and " + duration[1] + " minutes")
                 else:
                     await ctx.send(member.mention + ", [ ] No practice session currently exists. You may not yet be practicing or someone else may be practicing!")
             else:
@@ -121,11 +125,11 @@ class Practice(commands.Cog):
         if member.guild.id in database and member.voice != None:
             if member.voice.channel.id in database[member.guild.id] and database[member.guild.id][member.voice.channel.id]["practicing"] != 0 and database[member.guild.id][member.voice.channel.id]["started_time"] != 0:
                 duration = (datetime.datetime.now() - database[member.guild.id][member.voice.channel.id]["started_time"]).total_seconds()
-                duration = (int(duration / 3600), (duration % 3600)/60) #Not doing anything with this time yet
+                duration = (str(int(duration / 3600)), str(int((duration % 3600)/60))) #Not doing anything with this time yet
                 if database[member.guild.id][member.voice.channel.id]["song"] == "":
-                    await ctx.send(member.mention + ", " + database[member.guild.id][member.voice.channel.id]["practicing"].nick + " has been practicing for " + str(duration[0]) + " hours and " + str(duration[1]) + " minutes")
+                    await ctx.send(member.mention + ", " + database[member.guild.id][member.voice.channel.id]["practicing"].display_name + " has been practicing for " + duration[0] + " hours and " + duration[1] + " minutes")
                 else:
-                    await ctx.send(member.mention + ", " + database[member.guild.id][member.voice.channel.id]["practicing"].nick + " has been practicing " + database[member.guild.id][member.voice.channel.id]["song"] + " for " + str(duration[0]) + " hours and " + str(duration[1]) + " minutes")
+                    await ctx.send(member.mention + ", " + database[member.guild.id][member.voice.channel.id]["practicing"].display_name + " has been practicing " + database[member.guild.id][member.voice.channel.id]["song"] + " for " + duration[0] + " hours and " + duration[1] + " minutes")
                     
             else:
                 await ctx.send(member.mention + ", [ ] You are either not in a practice channel or you are not in an official practice session. If it is the latter, then type $practice to start a session!")
