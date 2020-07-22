@@ -99,6 +99,7 @@ class Practice(commands.Cog):
             print(database_template)
             with open('../data/database.pickle', "wb") as pickling_on:
                 pickle.dump(database_template, pickling_on)
+            await ctx.send("Practice room added.")
         else:
             await ctx.send("Please enter a valid channel id!")
 
@@ -138,6 +139,7 @@ class Practice(commands.Cog):
             if member.voice.channel.id in database[member.guild.id] and database[member.guild.id][member.voice.channel.id]["practicing"] == member: # the member is in a practice channel and he/she is the one practicing
                 if len(ctx.message.mentions) > 0:
                     await ctx.message.mentions[0].edit(mute=False)
+                    await ctx.send(ctx.message.mentions[0].mention + " excused.")
             else:
                 await ctx.send(member.mention + ", [ ] You are either not in a practice channel or you are not in an official practice session. If it is the latter, then type $practice to start a session!")
         else:
@@ -150,6 +152,7 @@ class Practice(commands.Cog):
             if member.voice.channel.id in database[member.guild.id] and database[member.guild.id][member.voice.channel.id]["practicing"] == member: # the member is in a practice channel and he/she is the one practicing
                 if len(ctx.message.mentions) > 0:
                     await ctx.message.mentions[0].edit(mute=True)
+                    await ctx.send(ctx.message.mentions[0].mention + " excused.")
             else:
                 await ctx.send(member.mention + ", [ ] You are either not in a practice channel or you are not in an official practice session. If it is the latter, then type $practice to start a session!")
         else:
