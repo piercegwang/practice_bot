@@ -2,11 +2,83 @@
 
 The main purpose of this discord bot is to create a practice room functionality in which people can join a practice room and practice in an environment where others can then join, listen, and encourage.
 
+** Adding the Bot to your Server
+Use the [[https://discordapp.com/oauth2/authorize?client_id=734996438462890006&scope=bot][Invite Link]] to add the bot to your server.
+
+** Usage
+
+*** Adding Practice Channels
+
+There are many possible ways to use the bot on your server. If you have a large user base, then I suggest setting up the channels like so:
+
+[[file:./figures/Channel_Setup_20200722_092226.jpeg]]
+
+This way, you don't clutter your server with too many text channels and there are still enough voice channels. If you need more, simply add them.
+
+From here, you need to manually tell the bot what to count as practice channel. In order to do this, you need to first make sure that you enable "Developer Mode" so that you can access the voice channel id's. Enable this through the bottom of the "Appearance" pane in Discord settings. Once this is enabled, go back and right click on the voice channel you wish to add and then use the command =$add_practice_channel <voice channel id>= to add the channel to the bot's list of practice channels.
+
+*** Using the Practice Channels
+
+In order to start using practice channels, simply join the channel and type =$practice= in the appropriate text channel. For more info on other commands you can use, type =$help=.
+
+**** Setting the Song
+
+Set the song that you're practicing by typing =$song <song name>=. You can use this to tell other people what you're practicing.
+
+**** Excusing Listeners
+
+Want to be able to talk to or hear other people? Simply excuse them with =$excuse <mention user>=. For example: =$excuse @Pratiser#3600=
+If you want to unexcuse someone simply do the same thing but use =$unexcuse=
+
+**** "Now Playing"
+
+If you have a practice session going, then you or anyone else in the voice channel can type =$np= (which stands for "now playing") to see how long you've been practicing and what you're practicing.
+
+**** Stopping a Practice Session
+
+Finally, if you're done practicing, use =$stop= to stop a practice session and let other people use the practice room.
+
 * Version Control
 
 ** Version 1
-The first version of this bot will simply be the voice channel functionality.
+- The first version of this bot will simply be the voice channel functionality.
+- A user will be able to join a voice channel and if they are the first person there, then they will be unmuted and be able to practice.
+- If someone else is already in the channel practicing then they will be server muted.
+- Added =$practice= command
+- Added =$stop= command
 
-A user will be able to join a voice channel and if they are the first person there, then they will be unmuted and be able to practice.
+** Version 2
+- Changed database storage format (JSON -> Pickle) for easy of saving information and dictionary template
+- Added more versatile =$add_practice_room= functionality (Can now add practice rooms independent of server thus making the bot more user-controlled)
 
-If someone else is already in the channel practicing then they will be server muted.
+** Version 3
+- Added =$song= command
+- Added =$excuse= and =$unexcuse= commands
+- Added =$np= command
+
+*** Version 3.1
+- Bug fixes, added =await= in front of certain commands.
+- Fixed some database access instances that were missed in version 2.
+
+*** Version 3.2
+- No changes, tested on Raspberry Pi
+- Did more elaborate testing.
+
+*** Version 3.3
+- Added feedback for excused and unexcused commands.
+
+*** Version 3.4
+- Revamped =on_voice_state_change= conditional setup. Now takes into account every possible channel change.
+- Added feature to mute all those who have been excused when the person who is/was practicing leaves the channel.
+
+*** Version 3.5
+- Fixed "excused" on use of =$unexcuse= command.
+- Wrote README.org file
+  - Installation
+  - Usage
+  - Version Control
+- Cleaned up git repo--removed pycache and fixed .gitignore
+
+
+Preparing for version 4 (Public release)
+

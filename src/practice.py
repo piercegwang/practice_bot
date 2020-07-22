@@ -156,7 +156,7 @@ class Practice(commands.Cog):
             if member.voice.channel.id in database[member.guild.id] and database[member.guild.id][member.voice.channel.id]["practicing"] == member: # the member is in a practice channel and he/she is the one practicing
                 if len(ctx.message.mentions) > 0:
                     await ctx.message.mentions[0].edit(mute=True)
-                    await ctx.send(ctx.message.mentions[0].mention + " excused.")
+                    await ctx.send(ctx.message.mentions[0].mention + " unexcused.")
             else:
                 await ctx.send(member.mention + ", [ ] You are either not in a practice channel or you are not in an official practice session. If it is the latter, then type $practice to start a session!")
         else:
