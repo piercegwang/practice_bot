@@ -12,8 +12,6 @@ handler = logging.FileHandler(filename='../output/discord.log', encoding='utf-8'
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-TOKEN = 'NzM0OTk2NDM4NDYyODkwMDA2.Xxhcyw.mYqBkBTZXSG8JuraxzFB0m7NM00'
-
 description = """I am a Discord Bot made by Pierce Wang specifically for practice rooms in Heifetz. Do $help for the list of my commands.
 In order to get started, just join one of the practice rooms on the side and start a practice session using the command below (with a '$' in front of it)!"""
 
@@ -44,4 +42,4 @@ async def help(ctx):
 
 bot.load_extension("practice")
 
-bot.run(TOKEN)
+bot.run(os.environ['BOT_TOKEN'])
