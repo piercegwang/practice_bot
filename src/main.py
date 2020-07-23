@@ -5,6 +5,7 @@ from discord.ext import commands
 import logging
 import json
 import asyncio
+import os
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.DEBUG)
