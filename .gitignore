@@ -1,4 +1,4 @@
 __pycache__/
 */__pycache__
 discord.log
-data/
+database.pickle
