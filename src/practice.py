@@ -111,7 +111,7 @@ class Practice(commands.Cog):
             await ctx.send("Please enter a valid channel id!")
 
     @commands.command(pass_context=True)
-    async def song(self, ctx, given_song):
+    async def song(self, ctx, *, given_song : str):
         member = ctx.author
         if member.guild.id in database and member.voice != None:
             if member.voice.channel.id in database[member.guild.id] and database[member.guild.id][member.voice.channel.id]["practicing"] == member and database[member.guild.id][member.voice.channel.id]["started_time"] != 0:
