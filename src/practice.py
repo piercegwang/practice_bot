@@ -1,11 +1,24 @@
 import discord
 from discord.ext import commands
 import datetime
-import pickle
+import os
+from sqlalchemy import Column, Integer, Unicode, UnicodeText, String
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
 
-with open('../data/database.pickle', "rb") as pickling_off:
-    database_template = pickle.load(pickling_off)
-    database = dict(database_template)
+DATABASE_URL = os.environ['DATABASE_URL']
+
+engine = create_engine('sqlite:////tmp/teste.db', echo=True)
+Base = declarative_base(bind=engine)
+
+class Room(Base):
+    __tablename__ = 'rooms'
+    voice_id = Column(Integer, primary_key = True)
+    text_id = Column(Integer)
+    member = Column(, nullable=True)
+    started_time = Column(, nullable=True)
+    
 
 class Practice(commands.Cog):
     def __init__(self, bot):
