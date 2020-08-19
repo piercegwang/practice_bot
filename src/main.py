@@ -6,6 +6,9 @@ import logging
 import json
 import asyncio
 import os
+import asyncpg
+
+DATABASE_URL = os.environ['DATABASE_URL']
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.DEBUG)
@@ -19,6 +22,9 @@ In order to get started, just join one of the practice rooms on the side and sta
 bot = commands.Bot(command_prefix='$', description=description)
 bot.remove_command('help')
 
+async def create_connection_pool():
+    bot.pg_conn = await asyncpg.create_pool(dns=DATABASE_URL)
+
 @bot.event
 async def on_ready():
     print('Logged in as')
@@ -27,6 +33,7 @@ async def on_ready():
     print('------')
     game = discord.Game(name='$help')
     await bot.change_presence(status=discord.Status.online, activity=game)
+    await create_connection_pool()
 
 @bot.command()
 async def help(ctx):
