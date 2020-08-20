@@ -56,7 +56,7 @@ class Practice(commands.Cog):
         """Start a practice session."""
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
-            if member.voice.channel == None:
+            if member.voice == None:
                 await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
             else:
                 practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
@@ -77,7 +77,7 @@ class Practice(commands.Cog):
         """Stop a practice session."""
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
-            if member.voice.channel == None:
+            if member.voice == None:
                 await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
             else:
                 practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
@@ -135,7 +135,7 @@ class Practice(commands.Cog):
     async def song(self, ctx, *, given_song : str):
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
-            if member.voice.channel == None:
+            if member.voice == None:
                 await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
             else:
                 practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
@@ -151,7 +151,7 @@ class Practice(commands.Cog):
     async def np(self, ctx):
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
-            if member.voice.channel == None:
+            if member.voice == None:
                 await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
             else:
                 practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
@@ -171,7 +171,7 @@ class Practice(commands.Cog):
     async def excuse(self, ctx, mention):
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
-            if member.voice.channel == None: # Member is not in a voice channel
+            if member.voice == None: # Member is not in a voice channel
                 await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
             else:
                 practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
@@ -189,7 +189,7 @@ class Practice(commands.Cog):
     async def unexcuse(self, ctx, mention):
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
-            if member.voice.channel == None: # Member is not in a voice channel
+            if member.voice == None: # Member is not in a voice channel
                 await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
             else:
                 practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
