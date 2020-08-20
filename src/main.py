@@ -7,6 +7,7 @@ import json
 import asyncio
 import os
 import asyncpg
+import ssl
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
