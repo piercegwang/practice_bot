@@ -57,7 +57,7 @@ class Practice(commands.Cog):
                                 duration = (datetime.datetime.now() - practice_room["started_time"]).total_seconds()
                                 duration = (str(int(duration / 3600)), str(int((duration % 3600)/60)))
                                 await self.bot.get_channel(practice_room["text_id"]).send(f'The person who was practice left the channel. Practiced {duration[0]} hours and {duration[1]} minutes')
-                                print(f'{member.nick} left the channel while practicing. They practiced {duration[0]} hours and {duration[1]} minutes')
+                                print(f'{member.nick} left the channel while practicing. They practiced {duration[0]} hours and {duration[1]} minutes.\nRoom: {before.channel.name}')
                             if len(before.channel.members) > 0: # Mute everyone in case someone was excused
                                 for user in before.channel.members:
                                     await user.edit(mute=True)
