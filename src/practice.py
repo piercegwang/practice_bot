@@ -71,15 +71,15 @@ class Practice(commands.Cog):
         """Start a practice session."""
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
-            if member.voice == None:
+            if member.voice.channel == None:
                 await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
             else:
-                practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.id)
+                practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
                 if practice_room != None:
                     if (practice_room["member"] == member.id or practice_room["member"] == 0) and practice_room["started_time"] == None:
                         async with con.transaction():
-                            await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", datetime.datetime.now(), member.voice.id)
-                            await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", member.id, member.voice.id)
+                            await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", datetime.datetime.now(), member.voice.channel.id)
+                            await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", member.id, member.voice.channel.id)
                         await member.edit(mute=False)
                         await ctx.send(member.mention + ", [X] You are now practicing.")
                     else:
@@ -92,18 +92,18 @@ class Practice(commands.Cog):
         """Stop a practice session."""
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
-            if member.voice == None:
+            if member.voice.channel == None:
                 await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
             else:
-                practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.id)
+                practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
                 if practice_room != None:
                     if practice_room["member"] == member.id and practice_room["started_time"] != None:
                         duration = (datetime.datetime.now() - practice_room["started_time"]).total_seconds()
                         duration = (str(int(duration / 3600)), str(int((duration % 3600)/60)))
                         async with con.transaction():
-                            await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", None, member.voice.id)
-                            await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", None, member.voice.id)
-                            await con.execute("UPDATE practice_rooms SET song = $1 WHERE voice_id = $2", None, member.voice.id)
+                            await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", None, member.voice.channel.id)
+                            await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", None, member.voice.channel.id)
+                            await con.execute("UPDATE practice_rooms SET song = $1 WHERE voice_id = $2", None, member.voice.channel.id)
                         await member.edit(mute=True)
                         await ctx.send(member.mention +  ", [ ] You're no longer practicing.\nThe user who was practicing has left or does not want to practice anymore. The first person to say \"$practice\" will be able to practice in this channel.\nThe user practiced for " + duration[0] + " hours and " + duration[1] + " minutes")
                     else:
@@ -150,14 +150,14 @@ class Practice(commands.Cog):
     async def song(self, ctx, *, given_song : str):
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
-            if member.voice == None:
+            if member.voice.channel == None:
                 await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
             else:
-                practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.id)
+                practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
                 if practice_room != None:
                     if practice_room["member"] == member.id and practice_room["started_time"] != None:
                         async with con.transaction():
-                            await con.execute("UPDATE practice_rooms SET song = $1 WHERE voice_id = $2", given_song, member.voice.id)
+                            await con.execute("UPDATE practice_rooms SET song = $1 WHERE voice_id = $2", given_song, member.voice.channel.id)
                         await ctx.send(member.mention + ", song set.")
                     else:
                         await ctx.send(member.mention + ", [ ] You must be in an official practice session to run this command! If no one else is practicing in this channel, then type $practice to start a session!")
@@ -166,10 +166,10 @@ class Practice(commands.Cog):
     async def np(self, ctx):
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
-            if member.voice == None:
+            if member.voice.channel == None:
                 await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
             else:
-                practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.id)
+                practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
                 if practice_room != None:
                     if practice_room["started_time"] != None:
                         duration = (datetime.datetime.now() - practice_room["started_time"]).total_seconds()
@@ -186,10 +186,10 @@ class Practice(commands.Cog):
     async def excuse(self, ctx, mention):
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
-            if member.voice == None: # Member is not in a voice channel
+            if member.voice.channel == None: # Member is not in a voice channel
                 await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
             else:
-                practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.id)
+                practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
                 if practice_room != None:
                     if practice_room["member"] == member.id: # the member is in a practice channel and they are the one practicing
                         if len(ctx.message.mentions) > 0:
@@ -204,10 +204,10 @@ class Practice(commands.Cog):
     async def unexcuse(self, ctx, mention):
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
-            if member.voice == None: # Member is not in a voice channel
+            if member.voice.channel == None: # Member is not in a voice channel
                 await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
             else:
-                practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.id)
+                practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
                 if practice_room != None:
                     if practice_room["member"] == member.id: # the member is in a practice channel and they are the one practicing
                         if len(ctx.message.mentions) > 0:
