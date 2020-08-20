@@ -78,7 +78,7 @@ class Practice(commands.Cog):
                 if practice_room != None:
                     if (practice_room["member"] == member.id or practice_room["member"] == 0) and practice_room["started_time"] == None:
                         async with con.transaction():
-                            await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", datetime.datetime.now() member.voice.id)
+                            await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", datetime.datetime.now(), member.voice.id)
                             await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", member.id, member.voice.id)
                         await member.edit(mute=False)
                         await ctx.send(member.mention + ", [X] You are now practicing.")
