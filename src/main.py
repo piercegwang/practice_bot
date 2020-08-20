@@ -23,7 +23,10 @@ bot = commands.Bot(command_prefix='$', description=description)
 bot.remove_command('help')
 
 async def create_connection_pool():
-    bot.pg_conn = await asyncpg.create_pool(DATABASE_URL,ssl=True)
+    ctx = ssl.create_default_context(cafile='')
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    bot.pg_conn = await asyncpg.create_pool(DATABASE_URL,ssl=ctx)
 
 @bot.event
 async def on_ready():
