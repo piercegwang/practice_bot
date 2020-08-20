@@ -4,22 +4,6 @@ import datetime
 import os
 import asyncpg
 
-# Database structure:
-# class Room(Base):
-#     __tablename__ = 'practice_rooms'
-#     voice_id = Column(Integer, primary_key = True)
-#     text_id = Column(Integer)
-#     member = Column(Integer, nullable=True)
-#     started_time = Column(DateTime, nullable=True)
-#     song = Column(string(String(150)), nullable=True)
-
-"""
-self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", some_channel)
-async with con.transaction():
-    await con.execute("INSERT INTO user_settings VALUES ($1, $2, $3)", (id,name,0))
-    await con.execute("UPDATE user_settings SET channel_name = $1 WHERE user_id = $2", name, id)
-"""
-
 class Practice(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -56,7 +40,7 @@ class Practice(commands.Cog):
                             if practice_room["started_time"] != None: # They had a practice session
                                 duration = (datetime.datetime.now() - practice_room["started_time"]).total_seconds()
                                 duration = (str(int(duration / 3600)), str(int((duration % 3600)/60)))
-                                await self.bot.get_channel(practice_room["text_id"]).send(f'The person who was practice left the channel. Practiced {duration[0]} hours and {duration[1]} minutes')
+                                await self.bot.get_channel(practice_room["text_id"]).send(f'The person who was practicing left the channel. {member.nick} practiced {duration[0]} hours and {duration[1]} minutes.\nRoom: {before.channel.name}')
                                 print(f'{member.nick} left the channel while practicing. They practiced {duration[0]} hours and {duration[1]} minutes.\nRoom: {before.channel.name}')
                             if len(before.channel.members) > 0: # Mute everyone in case someone was excused
                                 for user in before.channel.members:
