@@ -90,7 +90,7 @@ class Practice(commands.Cog):
                             await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", None, member.voice.channel.id)
                             await con.execute("UPDATE practice_rooms SET song = $1 WHERE voice_id = $2", None, member.voice.channel.id)
                         await member.edit(mute=True)
-                        await ctx.send(member.mention +  ", [ ] You're no longer practicing.\nThe user who was practicing has left or does not want to practice anymore. The first person to say \"$practice\" will be able to practice in this channel.\n{member.nick} practiced for " + duration[0] + " hours and " + duration[1] + " minutes")
+                        await ctx.send(member.mention +  ", [ ] You're no longer practicing.\nThe user who was practicing has left or does not want to practice anymore. The first person to say \"$practice\" will be able to practice in this channel.\n" + member.nick " practiced for " + duration[0] + " hours and " + duration[1] + " minutes")
                     else:
                         await ctx.send(member.mention + ", [ ] No practice session for you currently exists. You may not yet be practicing or someone else may be practicing!")
                 else:
