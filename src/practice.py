@@ -61,7 +61,7 @@ class Practice(commands.Cog):
             else:
                 practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
                 if practice_room != None:
-                    if (practice_room["member"] == member.id or practice_room["member"] == 0) and practice_room["started_time"] == None:
+                    if (practice_room["member"] == member.id or practice_room["member"] == None) and practice_room["started_time"] == None:
                         async with con.transaction():
                             await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", datetime.datetime.now(), member.voice.channel.id)
                             await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", member.id, member.voice.channel.id)
