@@ -46,6 +46,7 @@ async def help(ctx):
     embed.add_field(name="$practice", value="If no one is practicing yet, use $practice to start practicing.", inline=False)
     embed.add_field(name="$excuse", value="Unmutes a user so they can talk / give you feedback. Usage: $excuse", inline=False)
     embed.add_field(name="$unexcuse", value="Mutes a user once they are done giving feedback.", inline=False)
+    embed.add_field(name="$userlimit", value="Set the user limit for a channel.", inline=False)
     embed.add_field(name="$stop", value="If you don't want to practice anymore, you can use $stop to tell the bot that you are done practicing.", inline=False)
     embed.add_field(name="$song", value="If you are practicing, you can use this command to set the song you are practicing. Usage: $song <song name>", inline=False)
     embed.add_field(name="$np", value="This command will tell you information about the user practicing.", inline=False)
