@@ -246,17 +246,17 @@ class Practice(commands.Cog):
                         await ctx.send(member.mention + ", you're not the one practicing!")
 
     @commands.command(pass_context=True)
-    async def stats(self, ctx, *, mentions):
+    async def stats(self, ctx):
         member = ctx.author
         if len(ctx.message.mentions) > 0:
             user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", ctx.message.mentions[0].id)
             if user_info != None:
-                embed = discord.Embed(title=f'{ctx.message.mentions[0].nick}\'s Stats')
+                embed = discord.Embed(title=f'{mentioned.nick}\'s Stats')
                 embed.add_field(name="Total Practice Time", value=f'Your total time practiced is: {int(user_info["total_practice"] / 60)} hours and {user_info["total_practice"] % 60} minutes.', inline=False)
                 embed.set_footer(text="If you believe there is a mistake, please contact @Omar#4304. This message deletes after 20 seconds.")
                 await ctx.send(embed=embed, delete_after = 20.0)
             else:
-                await ctx.send(f'There is no data on {ctx.message.mentions[0].nick}!')
+                await ctx.send(f'There is no data on {mentioned.nick}!')
         else:
             user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", member.id)
             if user_info != None:
