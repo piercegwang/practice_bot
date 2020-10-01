@@ -94,8 +94,8 @@ class Practice(commands.Cog):
                 else:
                     await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
 
-    @commands.command(pass_context=True)
-    async def takebreak(self, ctx):
+    @commands.command(pass_context=True, aliases=['break'])
+    async def rest(self, ctx):
         """Take a break."""
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
@@ -111,7 +111,7 @@ class Practice(commands.Cog):
                             await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", None, member.voice.channel.id)
                         await member.edit(mute=True)
                         duration = (int(duration / 60), int((duration % 60)))
-                        await ctx.send(member.mention +  ", [ ] You're taking a break.\n" + member.nick + " has practiced for " + duration[0] + " hours and " + duration[1] + " minutes")
+                        await ctx.send(f'{member.mention}, [ ] You\'re taking a break.\n {member.nick} has practiced for {duration[0]} hours and {duration[1]} minutes')
                     else:
                         await ctx.send(member.mention + ", [ ] No practice session for you currently exists. You may not yet be practicing or someone else may be practicing!")
                 else:
@@ -139,8 +139,8 @@ class Practice(commands.Cog):
                 else:
                     await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
 
-    @commands.command(pass_context=True)
-    async def stop(self, ctx):
+    @commands.command(pass_context=True, aliases=['stop'])
+    async def nomore(self, ctx):
         """Stop a practice session."""
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
@@ -169,7 +169,7 @@ class Practice(commands.Cog):
                             await con.execute("UPDATE practice_rooms SET song = $1 WHERE voice_id = $2", None, member.voice.channel.id)
                             await con.execute("UPDATE practice_rooms SET minutes = $1 WHERE voice_id = $2", 0, member.voice.channel.id)
                         await member.edit(mute=True)
-                        await ctx.send(member.mention +  ", [ ] You're no longer practicing.\nThe user who was practicing has left or does not want to practice anymore. The first person to say \"$practice\" will be able to practice in this channel.\n" + member.nick + " practiced for " + duration[0] + " hours and " + duration[1] + " minutes")
+                        await ctx.send(f'{member.mention}, [ ] You\'re no longer practicing.\nThe user who was practicing has left or does not want to practice anymore. The first person to say \"$practice\" will be able to practice in this channel.\n {member.nick} practiced for {duration[0]} hours and {duration[1]} minutes')
                     else:
                         await ctx.send(member.mention + ", [ ] No practice session for you currently exists. You may not yet be practicing or someone else may be practicing!")
                 else:
@@ -240,7 +240,7 @@ class Practice(commands.Cog):
                         duration = int((datetime.datetime.now() - practice_room["started_time"]).total_seconds() / 60) + practice_room["minutes"]
                         duration = (int(duration / 60), int((duration % 60)))
                         if practice_room["song"] == None:
-                            await ctx.send(member.mention + ", " + ctx.guild.get_member(practice_room["member"]).display_name + " has been practicing for " + duration[0] + " hours and " + duration[1] + " minutes")
+                            await ctx.send(f'{member.mention}, {ctx.guild.get_member(practice_room["member"]).display_name} has been practicing for {duration[0]} hours and {duration[1]} minutes')
                         else:
                             await ctx.send(member.mention + ", " + ctx.guild.get_member(practice_room["member"]).display_name + " has been practicing " + practice_room["song"] + " for " + duration[0] + " hours and " + duration[1] + " minutes")
                 else:
