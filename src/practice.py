@@ -195,7 +195,7 @@ class Practice(commands.Cog):
                     await ctx.send(member.mention + ", [ ] You are either not in a practice channel or you are not in an official practice session. If it is the latter, then type $practice to start a session!")
 
     @commands.command(pass_context=True)
-    async def excuse(self, ctx, *):
+    async def excuse(self, ctx, *, mentions):
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
             if member.voice == None: # Member is not in a voice channel
@@ -213,7 +213,7 @@ class Practice(commands.Cog):
                         await ctx.send(member.mention + ", you're not the one practicing!")
 
     @commands.command(pass_context=True)
-    async def unexcuse(self, ctx, *):
+    async def unexcuse(self, ctx, *, mentions):
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
             if member.voice == None: # Member is not in a voice channel
@@ -246,7 +246,7 @@ class Practice(commands.Cog):
                         await ctx.send(member.mention + ", you're not the one practicing!")
 
     @commands.command(pass_context=True)
-    async def stats(self, ctx, *):
+    async def stats(self, ctx, *, mentions):
         member = ctx.author
         if len(ctx.message.mentions) > 0:
             user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", ctx.message.mentions[0].id)
