@@ -100,7 +100,7 @@ class Practice(commands.Cog):
                             await con.execute("UPDATE practice_rooms SET minutes = $1 WHERE voice_id = $2", duration, member.voice.channel.id)
                             await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", None, member.voice.channel.id)
                         duration = (int(duration / 60), int((duration % 60)))
-                        await ctx.send(f'{member.mention}, [ ] You\'re taking a break.\n {member.nick} has practiced for {duration[0]} hours and {duration[1]} minutes')
+                        await ctx.send(f'{member.mention}, [ ] You\'re taking a break.\n {member.nick} has practiced for {duration[0]} hours and {duration[1]} minutes.\n**Remember to type `$resume` when you start practicing again!**')
                     else:
                         await ctx.send(member.mention + ", [ ] No practice session for you currently exists. You may not yet be practicing or someone else may be practicing!")
                 else:
