@@ -53,13 +53,13 @@ async def help(ctx):
     embed.add_field(name="$np", value="This command will tell you information about the user practicing.", inline=False)
     embed.add_field(name="$stop", value="If you don't want to practice anymore, you can use $stop to tell the bot that you are done practicing.", inline=False)
     embed.add_field(name="$stats", value="Total time practiced is tracked by this bot. Query your stats using the $stats command. You can also check the stats of someone else by mentioning them using this command. Usage: $stats (optional) @mention", inline=False)
-    embed.set_footer(text="This bot was made by Pierce. Message will disappear in 20 seconds.")
-    await ctx.send(embed=embed, delete_after = 20.0)
+    embed.set_footer(text="This bot was made by Pierce. Message will disappear in 40 seconds.")
+    await ctx.send(embed=embed, delete_after = 40.0)
 
 @bot.command()
 async def help_admin(ctx):
     embed=discord.Embed(title="Help", description="Server admin command guide.", color=0x3c7f61)
-    embed.set_author(name="Heifetz Practice Bot")
+    embed.set_author(name="Discord Practice Bot")
     embed.add_field(name="$add_practice_room", value="Add a practice room. Each practice room must be linked to a text channel. Usage: $add_practice_room voice_channel_id text_channel_id", inline=False)
     embed.add_field(name="$remove_practice_room", value="Remove a practice room. Usage: $remove_practice_room voice_channel_id", inline=False)
     embed.set_footer(text="More to come! Message will disappear in 20 seconds.")

@@ -127,8 +127,8 @@ class Practice(commands.Cog):
                 else:
                     await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
 
-    @commands.command(pass_context=True, aliases=['stop'])
-    async def nomore(self, ctx):
+    @commands.command(pass_context=True, aliases=['nomore'])
+    async def stop(self, ctx):
         """Stop a practice session."""
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
