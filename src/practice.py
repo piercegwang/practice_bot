@@ -99,7 +99,6 @@ class Practice(commands.Cog):
                         async with con.transaction():
                             await con.execute("UPDATE practice_rooms SET minutes = $1 WHERE voice_id = $2", practice_room["minutes"] + duration, member.voice.channel.id)
                             await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", None, member.voice.channel.id)
-                        await member.edit(mute=True)
                         duration = (int(duration / 60), int((duration % 60)))
                         await ctx.send(f'{member.mention}, [ ] You\'re taking a break.\n {member.nick} has practiced for {duration[0]} hours and {duration[1]} minutes')
                     else:
@@ -121,7 +120,6 @@ class Practice(commands.Cog):
                         async with con.transaction():
                             await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", datetime.datetime.now(), member.voice.channel.id)
                             await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", member.id, member.voice.channel.id)
-                        await member.edit(mute=False)
                         await ctx.send(member.mention + ", [X] You've resumed your practice session")
                         print(f'{member.nick} started practice session')
                     else:
@@ -245,7 +243,7 @@ class Practice(commands.Cog):
                 else:
                     await ctx.send(f'{member.mention}, [ ] You are either not in a practice channel or you are not in an official practice session. If it is the latter, then type $practice to start a session!')
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases['unmute'])
     async def excuse(self, ctx, *, mentions):
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
@@ -263,7 +261,7 @@ class Practice(commands.Cog):
                     else:
                         await ctx.send(member.mention + ", you're not the one practicing!")
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases['mute'])
     async def unexcuse(self, ctx, *, mentions):
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
