@@ -7,6 +7,16 @@ import asyncpg
 class Practice(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    async def add_data(self, con, member_id, minutes):
+        print(f'Adding data for {member_id}. {minutes} minutes')
+        user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", member_id)
+        if user_info != None:
+            async with con.transaction():
+                await con.execute("UPDATE user_data SET total_practice = $1 WHERE member_id = $2", user_info["total_practice"] + minutes, member_id)
+        else:
+            async with con.transaction():
+                await con.execute("INSERT INTO user_data VALUES ($1, $2)", member_id, minutes)
                 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
@@ -232,15 +242,6 @@ class Practice(commands.Cog):
             embed.set_footer(text="If you believe there is a mistake, please contact @Omar#4304")
             await self.bot.say(embed=embed)
 
-    async def add_data(self, con, member_id, minutes):
-        print(f'Adding data for {member_id}. {minutes} minutes')
-        user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", member_id)
-        if user_info != None:
-            async with con.transaction():
-                await con.execute("UPDATE user_data SET total_practice = $1 WHERE member_id = $2", user_info["total_practice"] + minutes, member_id)
-        else:
-            async with con.transaction():
-                await con.execute("INSERT INTO user_data VALUES ($1, $2)", member_id, minutes)
 
 
 def setup(bot):
