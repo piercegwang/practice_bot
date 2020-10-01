@@ -242,9 +242,18 @@ class Practice(commands.Cog):
                         if practice_room["song"] == None:
                             await ctx.send(f'{member.mention}, {ctx.guild.get_member(practice_room["member"]).display_name} has been practicing for {duration[0]} hours and {duration[1]} minutes')
                         else:
-                            await ctx.send(member.mention + ", " + ctx.guild.get_member(practice_room["member"]).display_name + " has been practicing " + practice_room["song"] + " for " + duration[0] + " hours and " + duration[1] + " minutes")
+                            await ctx.send(f'{member.mention}, {ctx.guild.get_member(practice_room["member"]).display_name} has been practicing {practice_room["song"]} for {duration[0]} hours and {duration[1]} minutes')
+                    elif practice_room["minutes"] > 0:
+                        duration = practice_room["minutes"]
+                        duration = (int(duration / 60), int((duration % 60)))
+                        if practice_room["song"] == None:
+                            await ctx.send(f'{member.mention}, {ctx.guild.get_member(practice_room["member"]).display_name} is taking a break and has been practicing for {duration[0]} hours and {duration[1]} minutes')
+                        else:
+                            await ctx.send(f'{member.mention}, {ctx.guild.get_member(practice_room["member"]).display_name} is taking a rbeak and has been practicing {practice_room["song"]} for {duration[0]} hours and {duration[1]} minutes')
+                    else:
+                        await ctx.send(f'{member.mention}, the person practicing hasn\'t started an official practice session yet!')
                 else:
-                    await ctx.send(member.mention + ", [ ] You are either not in a practice channel or you are not in an official practice session. If it is the latter, then type $practice to start a session!")
+                    await ctx.send(f'{member.mention}, [ ] You are either not in a practice channel or you are not in an official practice session. If it is the latter, then type $practice to start a session!')
 
     @commands.command(pass_context=True)
     async def excuse(self, ctx, *, mentions):
