@@ -106,12 +106,11 @@ class Practice(commands.Cog):
                 if practice_room != None:
                     if practice_room["member"] == member.id and practice_room["started_time"] != None:
                         duration = int((datetime.datetime.now() - practice_room["started_time"]).total_seconds() / 60) + practice_room["minutes"]
-                        duration = (int(duration / 60), int((duration % 60)))
-
                         async with con.transaction():
                             await con.execute("UPDATE practice_rooms SET minutes = $1 WHERE voice_id = $2", practice_room["minutes"] + duration, member.voice.channel.id)
                             await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", None, member.voice.channel.id)
                         await member.edit(mute=True)
+                        duration = (int(duration / 60), int((duration % 60)))
                         await ctx.send(member.mention +  ", [ ] You're taking a break.\n" + member.nick + " has practiced for " + duration[0] + " hours and " + duration[1] + " minutes")
                     else:
                         await ctx.send(member.mention + ", [ ] No practice session for you currently exists. You may not yet be practicing or someone else may be practicing!")
