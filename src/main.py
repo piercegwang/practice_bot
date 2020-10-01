@@ -50,6 +50,7 @@ async def help(ctx):
     embed.add_field(name="$stop", value="If you don't want to practice anymore, you can use $stop to tell the bot that you are done practicing.", inline=False)
     embed.add_field(name="$song", value="If you are practicing, you can use this command to set the song you are practicing. Usage: $song <song name>", inline=False)
     embed.add_field(name="$np", value="This command will tell you information about the user practicing.", inline=False)
+    embed.add_field(name="$stats", value="Total time practiced is tracked by this bot. Query your stats using the $stats command. You can also check the stats of someone else by mentioning them using this command. Usage: $stats (optional) @mention", inline=False)
     embed.set_footer(text="This bot was made by Pierce. Message will disappear in 20 seconds.")
     await ctx.send(embed=embed, delete_after = 20.0)
 

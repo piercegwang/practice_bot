@@ -32,7 +32,7 @@ class Practice(commands.Cog):
                         if practice_room["member"] == None and len(after.channel.members) == 1: # No one is practicing yet
                             async with con.transaction():
                                 await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", member.id, after.channel.id)
-                            print(member.nick + " just started unofficially practicing")
+                            print(f'{member.nick} joined an empty channel')
                             await member.edit(mute=False)
                         else: # Someone is practicing or other people are already in the channel
                             await member.edit(mute=True)
@@ -48,15 +48,16 @@ class Practice(commands.Cog):
                                 await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", None, before.channel.id)
                                 await con.execute("UPDATE practice_rooms SET song = $1 WHERE voice_id = $2", None, before.channel.id)
                             if practice_room["started_time"] != None: # They had a practice session
-                                duration = (datetime.datetime.now() - practice_room["started_time"]).total_seconds()
+                                duration = int((datetime.datetime.now() - practice_room["started_time"]).total_seconds() / 60) + practice_room["minutes"]
                                 user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", member.id)
                                 if user_info != None:
                                     async with con.transaction():
-                                        await con.execute("UPDATE user_data SET total_practice = $1 WHERE member_id = $2", user_info["total_practice"] + int(duration/60), member.id)
+                                        await con.execute("UPDATE user_data SET total_practice = $1 WHERE member_id = $2", user_info["total_practice"] + duration, member.id)
                                 else:
                                     async with con.transaction():
-                                        await con.execute("INSERT INTO user_data VALUES ($1, $2)", member.id, int(duration/60))
-                                duration = (str(int(duration / 3600)), str(int((duration % 3600)/60)))
+                                        await con.execute("INSERT INTO user_data VALUES ($1, $2)", member.id, duration)
+                                        print(f'{member.name} left the channel and stopped their practice session.')
+                                duration = (int(duration / 60), int((duration % 60)))
                                 await self.bot.get_channel(practice_room["text_id"]).send(f'The person who was practicing left the channel. {member.nick} practiced {duration[0]} hours and {duration[1]} minutes.\nRoom: {before.channel.name}')
                                 print(f'{member.nick} left the channel while practicing. They practiced {duration[0]} hours and {duration[1]} minutes.\nRoom: {before.channel.name}')
                             if len(before.channel.members) > 0: # Mute everyone in case someone was excused
@@ -68,6 +69,7 @@ class Practice(commands.Cog):
                                 await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", None, before.channel.id)
                                 await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", None, before.channel.id)
                                 await con.execute("UPDATE practice_rooms SET song = $1 WHERE voice_id = $2", None, before.channel.id)
+                                await con.execute("UPDATE practice_rooms SET minutes = $1 WHERE voice_id = $2", 0, member.voice.channel.id)
                             await before.channel.edit(user_limit=69)
     
     @commands.command(pass_context=True)
@@ -86,6 +88,53 @@ class Practice(commands.Cog):
                             await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", member.id, member.voice.channel.id)
                         await member.edit(mute=False)
                         await ctx.send(member.mention + ", [X] You are now practicing.")
+                        print(f'{member.nick} started practice session')
+                    else:
+                        await ctx.send(member.mention + ", [ ] Practice session not started. You may already be practicing or someone else may be practicing!")
+                else:
+                    await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
+
+    @commands.command(pass_context=True)
+    async def break(self, ctx):
+        """Take a break."""
+        member = ctx.author
+        async with self.bot.pg_conn.acquire() as con:
+            if member.voice == None:
+                await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
+            else:
+                practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
+                if practice_room != None:
+                    if practice_room["member"] == member.id and practice_room["started_time"] != None:
+                        duration = int((datetime.datetime.now() - practice_room["started_time"]).total_seconds() / 60) + practice_room["minutes"]
+                        duration = (int(duration / 60), int((duration % 60)))
+
+                        async with con.transaction():
+                            await con.execute("UPDATE practice_rooms SET minutes = $1 WHERE voice_id = $2", practice_room["minutes"] + duration, member.voice.channel.id)
+                            await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", None, member.voice.channel.id)
+                        await member.edit(mute=True)
+                        await ctx.send(member.mention +  ", [ ] You're taking a break.\n" + member.nick + " has practiced for " + duration[0] + " hours and " + duration[1] + " minutes")
+                    else:
+                        await ctx.send(member.mention + ", [ ] No practice session for you currently exists. You may not yet be practicing or someone else may be practicing!")
+                else:
+                    await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
+
+    @commands.command(pass_context=True)
+    async def resume(self, ctx):
+        """Resume from after a break."""
+        member = ctx.author
+        async with self.bot.pg_conn.acquire() as con:
+            if member.voice == None:
+                await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
+            else:
+                practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
+                if practice_room != None:
+                    if (practice_room["member"] == member.id or practice_room["member"] == None) and practice_room["started_time"] == None:
+                        async with con.transaction():
+                            await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", datetime.datetime.now(), member.voice.channel.id)
+                            await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", member.id, member.voice.channel.id)
+                        await member.edit(mute=False)
+                        await ctx.send(member.mention + ", [X] You've resumed your practice session")
+                        print(f'{member.nick} started practice session')
                     else:
                         await ctx.send(member.mention + ", [ ] Practice session not started. You may already be practicing or someone else may be practicing!")
                 else:
@@ -101,21 +150,25 @@ class Practice(commands.Cog):
             else:
                 practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
                 if practice_room != None:
-                    if practice_room["member"] == member.id and practice_room["started_time"] != None:
-                        duration = (datetime.datetime.now() - practice_room["started_time"]).total_seconds()
+                    if practice_room["member"] == member.id:
+                        if practice_room["started_time"] != None:
+                            duration = int((datetime.datetime.now() - practice_room["started_time"]).total_seconds() / 60) + practice_room["minutes"]
+                        else: # On break, no started time or never started official practice session
+                            duration = practice_room["minutes"]
                         user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", member.id)
                         if user_info != None:
                             async with con.transaction():
-                                await con.execute("UPDATE user_data SET total_practice = $1 WHERE member_id = $2", user_info["total_practice"] + int(duration/60), member.id)
+                                await con.execute("UPDATE user_data SET total_practice = $1 WHERE member_id = $2", user_info["total_practice"] + duration, member.id)
                         else:
                             async with con.transaction():
-                                await con.execute("INSERT INTO user_data VALUES ($1, $2)", member.id, int(duration/60))
-                        duration = (str(int(duration / 3600)), str(int((duration % 3600)/60)))
+                                await con.execute("INSERT INTO user_data VALUES ($1, $2)", member.id, duration)
+                        duration = (int(duration / 60), int((duration % 60)))
 
                         async with con.transaction():
                             await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", None, member.voice.channel.id)
                             await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", None, member.voice.channel.id)
                             await con.execute("UPDATE practice_rooms SET song = $1 WHERE voice_id = $2", None, member.voice.channel.id)
+                            await con.execute("UPDATE practice_rooms SET minutes = $1 WHERE voice_id = $2", 0, member.voice.channel.id)
                         await member.edit(mute=True)
                         await ctx.send(member.mention +  ", [ ] You're no longer practicing.\nThe user who was practicing has left or does not want to practice anymore. The first person to say \"$practice\" will be able to practice in this channel.\n" + member.nick + " practiced for " + duration[0] + " hours and " + duration[1] + " minutes")
                     else:
@@ -135,7 +188,7 @@ class Practice(commands.Cog):
                 practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", channel_id)
                 if practice_room == None:
                     async with con.transaction():
-                        await con.execute("INSERT INTO practice_rooms VALUES ($1, $2, $3, $4, $5)", channel_id, text_id, None, None, None)
+                        await con.execute("INSERT INTO practice_rooms VALUES ($1, $2, $3, $4, $5, $6)", channel_id, text_id, None, None, None, 0)
                     await ctx.send("Practice room added.")
                 else:
                     await ctx.send("This practice room has already been added!")
@@ -185,8 +238,8 @@ class Practice(commands.Cog):
                 practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
                 if practice_room != None:
                     if practice_room["started_time"] != None:
-                        duration = (datetime.datetime.now() - practice_room["started_time"]).total_seconds()
-                        duration = (str(int(duration / 3600)), str(int((duration % 3600)/60)))
+                        duration = int((datetime.datetime.now() - practice_room["started_time"]).total_seconds() / 60) + practice_room["minutes"]
+                        duration = (int(duration / 60), int((duration % 60)))
                         if practice_room["song"] == None:
                             await ctx.send(member.mention + ", " + ctx.guild.get_member(practice_room["member"]).display_name + " has been practicing for " + duration[0] + " hours and " + duration[1] + " minutes")
                         else:
