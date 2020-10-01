@@ -95,7 +95,7 @@ class Practice(commands.Cog):
                     await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
 
     @commands.command(pass_context=True)
-    async def break(self, ctx):
+    async def takebreak(self, ctx):
         """Take a break."""
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
