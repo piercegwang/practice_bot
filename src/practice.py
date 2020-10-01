@@ -39,6 +39,7 @@ class Practice(commands.Cog):
                                 await con.execute("UPDATE practice_rooms SET song = $1 WHERE voice_id = $2", None, before.channel.id)
                             if practice_room["started_time"] != None: # They had a practice session
                                 duration = (datetime.datetime.now() - practice_room["started_time"]).total_seconds()
+                                await add_data(con, member.id, int(duration/60))
                                 duration = (str(int(duration / 3600)), str(int((duration % 3600)/60)))
                                 await self.bot.get_channel(practice_room["text_id"]).send(f'The person who was practicing left the channel. {member.nick} practiced {duration[0]} hours and {duration[1]} minutes.\nRoom: {before.channel.name}')
                                 print(f'{member.nick} left the channel while practicing. They practiced {duration[0]} hours and {duration[1]} minutes.\nRoom: {before.channel.name}')
@@ -86,6 +87,7 @@ class Practice(commands.Cog):
                 if practice_room != None:
                     if practice_room["member"] == member.id and practice_room["started_time"] != None:
                         duration = (datetime.datetime.now() - practice_room["started_time"]).total_seconds()
+                        await add_data(con, member.id, int(duration/60))
                         duration = (str(int(duration / 3600)), str(int((duration % 3600)/60)))
                         async with con.transaction():
                             await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", None, member.voice.channel.id)
@@ -166,7 +168,6 @@ class Practice(commands.Cog):
                             await ctx.send(member.mention + ", " + ctx.guild.get_member(practice_room["member"]).display_name + " has been practicing for " + duration[0] + " hours and " + duration[1] + " minutes")
                         else:
                             await ctx.send(member.mention + ", " + ctx.guild.get_member(practice_room["member"]).display_name + " has been practicing " + practice_room["song"] + " for " + duration[0] + " hours and " + duration[1] + " minutes")
-
                 else:
                     await ctx.send(member.mention + ", [ ] You are either not in a practice channel or you are not in an official practice session. If it is the latter, then type $practice to start a session!")
 
@@ -220,6 +221,27 @@ class Practice(commands.Cog):
                         await ctx.send(f'{member.mention}, user limit set to {given_limit}')
                     else:
                         await ctx.send(member.mention + ", you're not the one practicing!")
+
+    @commands.command(pass_context=True)
+    async def stats(self, ctx, mention):
+        member = ctx.author
+        if len(ctx.message.mentions) > 0:
+            user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", ctx.message.mentions[0].id)
+            embed = discord.Embed(title=f'{ctx.message.mentions[0].nick}\'s Stats')
+            embed.add_field(name="Total Practice Time", value=f'Your total time practiced is: {int(user_info["total_practice"] / 60)} hours and {user_info["total_practice"] % 60} minutes.', inline=False)
+            embed.set_footer(text="If you believe there is a mistake, please contact @Omar#4304")
+            await self.bot.say(embed=embed)
+
+    async def add_data(self, con, member_id, minutes):
+        print(f'Adding data for {member_id}. {minutes} minutes')
+        user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", member_id)
+        if user_info != None:
+            async with con.transaction():
+                await con.execute("UPDATE user_data SET total_practice = $1 WHERE member_id = $2", user_info["total_practice"] + minutes, member_id)
+        else:
+            async with con.transaction():
+                await con.execute("INSERT INTO user_data VALUES ($1, $2)", member_id, minutes)
+
 
 def setup(bot):
     bot.add_cog(Practice(bot))
