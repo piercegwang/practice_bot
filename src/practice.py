@@ -8,7 +8,7 @@ class Practice(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    async def add_data(self, con, member_id, minutes):
+    def add_data(self, con, member_id, minutes):
         print(f'Adding data for {member_id}. {minutes} minutes')
         user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", member_id)
         if user_info != None:
@@ -49,7 +49,7 @@ class Practice(commands.Cog):
                                 await con.execute("UPDATE practice_rooms SET song = $1 WHERE voice_id = $2", None, before.channel.id)
                             if practice_room["started_time"] != None: # They had a practice session
                                 duration = (datetime.datetime.now() - practice_room["started_time"]).total_seconds()
-                                await add_data(con, member.id, int(duration/60))
+                                add_data(con, member.id, int(duration/60))
                                 duration = (str(int(duration / 3600)), str(int((duration % 3600)/60)))
                                 await self.bot.get_channel(practice_room["text_id"]).send(f'The person who was practicing left the channel. {member.nick} practiced {duration[0]} hours and {duration[1]} minutes.\nRoom: {before.channel.name}')
                                 print(f'{member.nick} left the channel while practicing. They practiced {duration[0]} hours and {duration[1]} minutes.\nRoom: {before.channel.name}')
@@ -97,7 +97,7 @@ class Practice(commands.Cog):
                 if practice_room != None:
                     if practice_room["member"] == member.id and practice_room["started_time"] != None:
                         duration = (datetime.datetime.now() - practice_room["started_time"]).total_seconds()
-                        await add_data(con, member.id, int(duration/60))
+                        add_data(con, member.id, int(duration/60))
                         duration = (str(int(duration / 3600)), str(int((duration % 3600)/60)))
                         async with con.transaction():
                             await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", None, member.voice.channel.id)
