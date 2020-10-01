@@ -243,7 +243,7 @@ class Practice(commands.Cog):
                 else:
                     await ctx.send(f'{member.mention}, [ ] You are either not in a practice channel or you are not in an official practice session. If it is the latter, then type $practice to start a session!')
 
-    @commands.command(pass_context=True, aliases['unmute'])
+    @commands.command(pass_context=True, aliases=['unmute'])
     async def excuse(self, ctx, *, mentions):
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
@@ -261,7 +261,7 @@ class Practice(commands.Cog):
                     else:
                         await ctx.send(member.mention + ", you're not the one practicing!")
 
-    @commands.command(pass_context=True, aliases['mute'])
+    @commands.command(pass_context=True, aliases=['mute'])
     async def unexcuse(self, ctx, *, mentions):
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
