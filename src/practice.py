@@ -59,7 +59,7 @@ class Practice(commands.Cog):
                                 await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", None, before.channel.id)
                                 await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", None, before.channel.id)
                                 await con.execute("UPDATE practice_rooms SET song = $1 WHERE voice_id = $2", None, before.channel.id)
-                                await con.execute("UPDATE practice_rooms SET minutes = $1 WHERE voice_id = $2", 0, member.voice.channel.id)
+                                await con.execute("UPDATE practice_rooms SET minutes = $1 WHERE voice_id = $2", 0, before.channel.id)
                             await before.channel.edit(user_limit=69)
     
     @commands.command(pass_context=True)
