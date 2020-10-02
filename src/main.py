@@ -48,6 +48,7 @@ async def help(ctx):
     embed.add_field(name="$excuse", value="Unmutes a user so they can talk / give you feedback. Usage: $excuse", inline=False)
     embed.add_field(name="$unexcuse", value="Mutes a user once they are done giving feedback.", inline=False)
     embed.add_field(name="$userlimit", value="Set the user limit for a channel.", inline=False)
+    embed.add_field(name="$setbit", value="Set the bitrate for a channel. This value can be any integer ranging from 8 to 128 inclusive. The default is 96.", inline=False)
     embed.add_field(name="$break", value="Breaks are healthy! If you need to take a break, type $break and the bot will pause your timer so you can rest. During breaks, feel free to $excuse yourself if you would like to continue talking.", inline=False)
     embed.add_field(name="$resume", value="Continue practicing when you're done taking a break!", inline=False)
     embed.add_field(name="$np", value="This command will tell you information about the user practicing.", inline=False)

@@ -53,7 +53,8 @@ class Practice(commands.Cog):
                             if len(before.channel.members) > 0: # Mute everyone in case someone was excused
                                 for user in before.channel.members:
                                     await user.edit(mute=True)
-                            await before.channel.edit(user_limit=69)
+                            await before.channel.edit(user_limit = 69)
+                            await before.channel.edit(bitrate = 96)
                         elif len(before.channel.members) == 0: # No one left in the channel
                             async with con.transaction():
                                 await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", None, before.channel.id)
@@ -61,6 +62,7 @@ class Practice(commands.Cog):
                                 await con.execute("UPDATE practice_rooms SET song = $1 WHERE voice_id = $2", None, before.channel.id)
                                 await con.execute("UPDATE practice_rooms SET minutes = $1 WHERE voice_id = $2", 0, before.channel.id)
                             await before.channel.edit(user_limit=69)
+                            await before.channel.edit(bitrate = 96)
     
     @commands.command(pass_context=True)
     async def practice(self, ctx):
@@ -291,6 +293,21 @@ class Practice(commands.Cog):
                     if practice_room["member"] == member.id: # the member is in a practice channel and they are the one practicing
                         await member.voice.channel.edit(user_limit = given_limit)
                         await ctx.send(f'{member.mention}, user limit set to {given_limit}')
+                    else:
+                        await ctx.send(member.mention + ", you're not the one practicing!")
+
+    @commands.command(pass_context=True, aliases = ['bitrate'])
+    async def setbit(self, ctx, bitrate : int):
+        member = ctx.author
+        async with self.bot.pg_conn.acquire() as con:
+            if member.voice == None: # Member is not in a voice channel
+                await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
+            else:
+                practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
+                if practice_room != None:
+                    if practice_room["member"] == member.id: # the member is in a practice channel and they are the one practicing
+                        await member.voice.channel.edit(bitrate = bitrate)
+                        await ctx.send(f'{member.mention}, voice channel bitrate set to {bitrate}')
                     else:
                         await ctx.send(member.mention + ", you're not the one practicing!")
 
