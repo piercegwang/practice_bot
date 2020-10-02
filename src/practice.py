@@ -54,7 +54,7 @@ class Practice(commands.Cog):
                                 for user in before.channel.members:
                                     await user.edit(mute=True)
                             await before.channel.edit(user_limit = 69)
-                            await before.channel.edit(bitrate = 96)
+                            await before.channel.edit(bitrate = 96000)
                         elif len(before.channel.members) == 0: # No one left in the channel
                             async with con.transaction():
                                 await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", None, before.channel.id)
@@ -62,7 +62,7 @@ class Practice(commands.Cog):
                                 await con.execute("UPDATE practice_rooms SET song = $1 WHERE voice_id = $2", None, before.channel.id)
                                 await con.execute("UPDATE practice_rooms SET minutes = $1 WHERE voice_id = $2", 0, before.channel.id)
                             await before.channel.edit(user_limit=69)
-                            await before.channel.edit(bitrate = 96)
+                            await before.channel.edit(bitrate = 96000)
     
     @commands.command(pass_context=True)
     async def practice(self, ctx):
