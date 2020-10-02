@@ -306,7 +306,7 @@ class Practice(commands.Cog):
                 practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
                 if practice_room != None:
                     if practice_room["member"] == member.id: # the member is in a practice channel and they are the one practicing
-                        await member.voice.channel.edit(bitrate = bitrate)
+                        await member.voice.channel.edit(bitrate = bitrate * 1000)
                         await ctx.send(f'{member.mention}, voice channel bitrate set to {bitrate}')
                     else:
                         await ctx.send(member.mention + ", you're not the one practicing!")
