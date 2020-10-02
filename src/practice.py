@@ -145,7 +145,7 @@ class Practice(commands.Cog):
                         user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", member.id)
                         if user_info != None:
                             async with con.transaction():
-                                await con.execute("UPDATE user_data SET total_practice = $1 WHERE member_id = $2", user_info["total_practice"] + duration, member.id)
+                                await con.execute("UPDATE user_data SET total_practice = $1 WHERE member_id = $2", duration, member.id)
                         else:
                             async with con.transaction():
                                 await con.execute("INSERT INTO user_data VALUES ($1, $2)", member.id, duration)
