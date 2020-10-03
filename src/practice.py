@@ -270,7 +270,7 @@ class Practice(commands.Cog):
                     else:
                         await ctx.send(member.mention + ", you're not the one practicing!")
 
-    @commands.command(pass_context=True, aliases=['mute'])
+    @commands.command(pass_context=True, aliases=['mute', 'shush'])
     async def unexcuse(self, ctx, *, mentions):
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
@@ -341,7 +341,7 @@ class Practice(commands.Cog):
                 await ctx.send(f'We don\'t have any data on you!')
 
     @commands.command(pass_context=True)
-    async def stats_silent(self, ctx, *, user_id: int = 0):
+    async def stats_silent(self, ctx, user_id: int = 0):
         member = ctx.author
         if user_id == 0:
             user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", user_id)
