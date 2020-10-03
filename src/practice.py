@@ -25,7 +25,10 @@ class Practice(commands.Cog):
                             print(f'{member.nick} joined an empty channel')
                             await member.edit(mute=False)
                         else: # Someone is practicing or other people are already in the channel
-                            await member.edit(mute=True)
+                            try:
+                                await member.edit(mute=True)
+                            except:
+                                print(f'No permission to mute user on {member.guild.name}')
                     else:
                         await member.edit(mute=False)
 
