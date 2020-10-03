@@ -41,8 +41,11 @@ class Practice(commands.Cog):
                                 await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", None, before.channel.id)
                                 await con.execute("UPDATE practice_rooms SET song = $1 WHERE voice_id = $2", None, before.channel.id)
                                 await con.execute("UPDATE practice_rooms SET minutes = $1 WHERE voice_id = $2", 0, before.channel.id)
-                            if practice_room["started_time"] != None: # They had a practice session
-                                duration = int((datetime.datetime.now() - practice_room["started_time"]).total_seconds() / 60) + practice_room["minutes"]
+                            if practice_room["started_time"] != None or practice_room["minutes"] > 0: # They had a practice session
+                                if practice_room["started_time"] != None:
+                                    duration = int((datetime.datetime.now() - practice_room["started_time"]).total_seconds() / 60) + practice_room["minutes"]
+                                else:
+                                    duration = practice_room["minutes"]
                                 user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", member.id)
                                 if user_info != None:
                                     async with con.transaction():
@@ -350,7 +353,7 @@ class Practice(commands.Cog):
             else:
                 await ctx.send(f'There is no data on {get_member(user_id).nick}!')
         else:
-            ctx.send(f'{member.mention}, please include a user id!')
+            await ctx.send(f'{member.mention}, please include a user id!')
 
 
 
