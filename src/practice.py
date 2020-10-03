@@ -37,6 +37,7 @@ class Practice(commands.Cog):
                                 await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", None, before.channel.id)
                                 await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", None, before.channel.id)
                                 await con.execute("UPDATE practice_rooms SET song = $1 WHERE voice_id = $2", None, before.channel.id)
+                                await con.execute("UPDATE practice_rooms SET minutes = $1 WHERE voice_id = $2", 0, before.channel.id)
                             if practice_room["started_time"] != None: # They had a practice session
                                 duration = int((datetime.datetime.now() - practice_room["started_time"]).total_seconds() / 60) + practice_room["minutes"]
                                 user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", member.id)
@@ -118,7 +119,7 @@ class Practice(commands.Cog):
             else:
                 practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
                 if practice_room != None:
-                    if (practice_room["member"] == member.id or practice_room["member"] == None) and practice_room["started_time"] == None:
+                    if (practice_room["member"] == member.id) and practice_room["started_time"] == None:
                         async with con.transaction():
                             await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", datetime.datetime.now(), member.voice.channel.id)
                             await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", member.id, member.voice.channel.id)
