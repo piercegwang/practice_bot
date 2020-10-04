@@ -341,9 +341,9 @@ class Practice(commands.Cog):
                 await ctx.send(f'We don\'t have any data on you!')
 
     @commands.command(pass_context=True)
-    async def stats_silent(self, ctx, user_id: int = 0):
+    async def stats_silent(self, ctx, user_id : int):
         member = ctx.author
-        if user_id == 0:
+        if user_id == None:
             user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", user_id)
             if user_info != None:
                 embed = discord.Embed(title=f'{get_member(user_id).nick}\'s Stats')
