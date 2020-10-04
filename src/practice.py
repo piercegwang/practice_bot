@@ -341,17 +341,18 @@ class Practice(commands.Cog):
                 await ctx.send(f'We don\'t have any data on you!')
 
     @commands.command(pass_context=True)
-    async def stats_silent(self, ctx, user_id : int):
+    async def stats_silent(self, ctx, *, user_id : int = 0):
         member = ctx.author
-        if user_id == None:
+        stats_member = ctx.guild.get_member(user_id)
+        if stats_member != None:
             user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", user_id)
             if user_info != None:
-                embed = discord.Embed(title=f'{get_member(user_id).nick}\'s Stats')
+                embed = discord.Embed(title=f'{stats_member.nick}\'s Stats')
                 embed.add_field(name="Total Practice Time", value=f'Your total time practiced is: {int(user_info["total_practice"] / 60)} hours and {user_info["total_practice"] % 60} minutes.', inline=False)
                 embed.set_footer(text="If you believe there is a mistake, please contact @Omar#4304. This message deletes after 20 seconds.")
                 await ctx.send(embed=embed, delete_after = 20.0)
             else:
-                await ctx.send(f'There is no data on {get_member(user_id).nick}!')
+                await ctx.send(f'There is no data on {stats_member.nick}!')
         else:
             await ctx.send(f'{member.mention}, please include a user id!')
 
