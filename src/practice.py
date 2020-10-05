@@ -30,7 +30,10 @@ class Practice(commands.Cog):
                             except:
                                 print(f'No permission to mute user on {member.guild.name}')
                     else:
-                        await member.edit(mute=False)
+                        try:
+                            await member.edit(mute=True)
+                        except:
+                            print(f'No permission to mute user on {member.guild.name}')
 
                 if before.channel is not None: # User is leaving a channel
                     practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", before.channel.id)
