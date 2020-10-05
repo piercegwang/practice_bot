@@ -31,7 +31,7 @@ class Practice(commands.Cog):
                                 print(f'No permission to mute user on {member.guild.name}')
                     else:
                         try:
-                            await member.edit(mute=True)
+                            await member.edit(mute=False)
                         except:
                             print(f'No permission to mute user on {member.guild.name}')
 
