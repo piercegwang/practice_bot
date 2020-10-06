@@ -214,20 +214,23 @@ class Practice(commands.Cog):
                 await ctx.send("Please enter a valid voice channel id.")
 
     @commands.command(pass_context=True)
-    async def song(self, ctx, *, given_song : str):
+    async def song(self, ctx, *, given_song : str = ""):
         member = ctx.author
-        async with self.bot.pg_conn.acquire() as con:
-            if member.voice == None:
-                await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
-            else:
-                practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
-                if practice_room != None:
-                    if practice_room["member"] == member.id and (practice_room["started_time"] != None or practice_room["duration"] > 0):
-                        async with con.transaction():
-                            await con.execute("UPDATE practice_rooms SET song = $1 WHERE voice_id = $2", given_song, member.voice.channel.id)
-                        await ctx.send(member.mention + ", song set.")
-                    else:
-                        await ctx.send(member.mention + ", [ ] You must be in an official practice session to run this command! If no one else is practicing in this channel, then type $practice to start a session!")
+        if given_song != "":
+            async with self.bot.pg_conn.acquire() as con:
+                if member.voice == None:
+                    await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
+                else:
+                    practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
+                    if practice_room != None:
+                        if practice_room["member"] == member.id and (practice_room["started_time"] != None or practice_room["duration"] > 0):
+                            async with con.transaction():
+                                await con.execute("UPDATE practice_rooms SET song = $1 WHERE voice_id = $2", given_song, member.voice.channel.id)
+                            await ctx.send(member.mention + ", song set.")
+                        else:
+                            await ctx.send(member.mention + ", [ ] You must be in an official practice session to run this command! If no one else is practicing in this channel, then type $practice to start a session!")
+        else:
+            await ctx.send(f'{member.mention}, song not set. Please provide a song name')
 
     @commands.command(pass_context=True)
     async def np(self, ctx):
