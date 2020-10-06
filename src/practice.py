@@ -22,7 +22,7 @@ class Practice(commands.Cog):
                         if practice_room["member"] == None and len(after.channel.members) == 1: # No one is practicing yet
                             async with con.transaction():
                                 await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", member.id, after.channel.id)
-                            print(f'{member.nick} joined an empty channel')
+                            print(f'{member.display_name} joined an empty channel')
                             await member.edit(mute=False)
                         else: # Someone is practicing or other people are already in the channel
                             try:
@@ -58,8 +58,8 @@ class Practice(commands.Cog):
                                         await con.execute("INSERT INTO user_data VALUES ($1, $2)", member.id, duration)
                                         print(f'{member.name} left the channel and stopped their practice session.')
                                 duration = (int(duration / 60), int((duration % 60)))
-                                await self.bot.get_channel(practice_room["text_id"]).send(f'The person who was practicing left the channel. {member.nick} practiced {duration[0]} hours and {duration[1]} minutes.\nRoom: {before.channel.name}')
-                                print(f'{member.nick} left the channel while practicing. They practiced {duration[0]} hours and {duration[1]} minutes.\nRoom: {before.channel.name}')
+                                await self.bot.get_channel(practice_room["text_id"]).send(f'The person who was practicing left the channel. {member.display_name} practiced {duration[0]} hours and {duration[1]} minutes.\nRoom: {before.channel.name}')
+                                print(f'{member.display_name} left the channel while practicing. They practiced {duration[0]} hours and {duration[1]} minutes.\nRoom: {before.channel.name}')
                             if len(before.channel.members) > 0: # Mute everyone in case someone was excused
                                 for user in before.channel.members:
                                     await user.edit(mute=True)
@@ -90,7 +90,7 @@ class Practice(commands.Cog):
                             await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", member.id, member.voice.channel.id)
                         await member.edit(mute=False)
                         await ctx.send(member.mention + ", [X] You are now practicing.")
-                        print(f'{member.nick} started practice session')
+                        print(f'{member.display_name} started practice session')
                     else:
                         await ctx.send(member.mention + ", [ ] Practice session not started. You may already be practicing or someone else may be practicing!")
                 else:
@@ -112,7 +112,7 @@ class Practice(commands.Cog):
                             await con.execute("UPDATE practice_rooms SET minutes = $1 WHERE voice_id = $2", duration, member.voice.channel.id)
                             await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", None, member.voice.channel.id)
                         duration = (int(duration / 60), int((duration % 60)))
-                        await ctx.send(f'{member.mention}, [ ] You\'re taking a break.\n {member.nick} has practiced for {duration[0]} hours and {duration[1]} minutes.\n**Remember to type `$resume` when you start practicing again!**')
+                        await ctx.send(f'{member.mention}, [ ] You\'re taking a break.\n {member.display_name} has practiced for {duration[0]} hours and {duration[1]} minutes.\n**Remember to type `$resume` when you start practicing again!**')
                     elif practice_room["member"] == member.id and practice_room["duration"] > 0:
                         await ctx.send(member.mention + ", [ ] You're already on a break! Do `$resume` to continue your practice session.")
                     else:
@@ -135,7 +135,7 @@ class Practice(commands.Cog):
                             await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", datetime.datetime.now(), member.voice.channel.id)
                             await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", member.id, member.voice.channel.id)
                         await ctx.send(member.mention + ", [X] You've resumed your practice session")
-                        print(f'{member.nick} started practice session')
+                        print(f'{member.display_name} started practice session')
                     else:
                         await ctx.send(member.mention + ", [ ] Practice session not started. You may already be practicing or someone else may be practicing!")
                 else:
@@ -171,7 +171,7 @@ class Practice(commands.Cog):
                             await con.execute("UPDATE practice_rooms SET song = $1 WHERE voice_id = $2", None, member.voice.channel.id)
                             await con.execute("UPDATE practice_rooms SET minutes = $1 WHERE voice_id = $2", 0, member.voice.channel.id)
                         await member.edit(mute=True)
-                        await ctx.send(f'{member.mention}, [ ] You\'re no longer practicing.\nThe user who was practicing has left or does not want to practice anymore. The first person to say \"$practice\" will be able to practice in this channel.\n {member.nick} practiced for {duration[0]} hours and {duration[1]} minutes')
+                        await ctx.send(f'{member.mention}, [ ] You\'re no longer practicing.\nThe user who was practicing has left or does not want to practice anymore. The first person to say \"$practice\" will be able to practice in this channel.\n {member.display_name} practiced for {duration[0]} hours and {duration[1]} minutes')
                     else:
                         await ctx.send(member.mention + ", [ ] No practice session for you currently exists. You may not yet be practicing or someone else may be practicing!")
                 else:
@@ -332,16 +332,16 @@ class Practice(commands.Cog):
         if len(ctx.message.mentions) > 0:
             user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", ctx.message.mentions[0].id)
             if user_info != None:
-                embed = discord.Embed(title=f'{ctx.message.mentions[0].nick}\'s Stats')
+                embed = discord.Embed(title=f'{ctx.message.mentions[0].display_name}\'s Stats')
                 embed.add_field(name="Total Practice Time", value=f'Your total time practiced is: {int(user_info["total_practice"] / 60)} hours and {user_info["total_practice"] % 60} minutes.', inline=False)
                 embed.set_footer(text="If you believe there is a mistake, please contact @Omar#4304. This message deletes after 20 seconds.")
                 await ctx.send(embed=embed, delete_after = 20.0)
             else:
-                await ctx.send(f'There is no data on {ctx.message.mentions[0].nick}!')
+                await ctx.send(f'There is no data on {ctx.message.mentions[0].display_name}!')
         else:
             user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", member.id)
             if user_info != None:
-                embed = discord.Embed(title=f'{member.nick}\'s Stats')
+                embed = discord.Embed(title=f'{member.display_name}\'s Stats')
                 embed.add_field(name="Total Practice Time", value=f'Your total time practiced is: {int(user_info["total_practice"] / 60)} hours and {user_info["total_practice"] % 60} minutes.', inline=False)
                 embed.set_footer(text="If you believe there is a mistake, please contact @Omar#4304. This message deletes after 20 seconds.")
                 await ctx.send(embed=embed, delete_after = 20.0)
@@ -355,12 +355,12 @@ class Practice(commands.Cog):
         if stats_member != None:
             user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", user_id)
             if user_info != None:
-                embed = discord.Embed(title=f'{stats_member.nick}\'s Stats')
+                embed = discord.Embed(title=f'{stats_member.display_name}\'s Stats')
                 embed.add_field(name="Total Practice Time", value=f'Your total time practiced is: {int(user_info["total_practice"] / 60)} hours and {user_info["total_practice"] % 60} minutes.', inline=False)
                 embed.set_footer(text="If you believe there is a mistake, please contact @Omar#4304. This message deletes after 20 seconds.")
                 await ctx.send(embed=embed, delete_after = 20.0)
             else:
-                await ctx.send(f'There is no data on {stats_member.nick}!')
+                await ctx.send(f'There is no data on {stats_member.display_name}!')
         else:
             await ctx.send(f'{member.mention}, please include a user id!')
 
