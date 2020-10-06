@@ -296,7 +296,7 @@ class Practice(commands.Cog):
                     else:
                         await ctx.send(member.mention + ", you're not the one practicing!")
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['limit'])
     async def userlimit(self, ctx, given_limit : int):
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
