@@ -9,9 +9,9 @@ class Practice(commands.Cog):
         self.bot = bot
 
     def edit_room(self, con, channel_id, properties):
-        async with con.transaction():
+        with con.transaction():
             for key, value in properties:
-                await con.execute(f'UPDATE practice_rooms SET {key} = $2 WHERE voice_id = $1', value, channel_id)
+                con.execute(f'UPDATE practice_rooms SET {key} = $2 WHERE voice_id = $1', value, channel_id)
     
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
