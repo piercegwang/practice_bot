@@ -39,6 +39,7 @@ class Practice(commands.Cog):
                     practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", before.channel.id)
                     if practice_room != None:
                         if practice_room["member"] == member.id: # Person leaving the channel is the person practicing
+                            print("Erasing data--member left channel")
                             async with con.transaction():
                                 await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", None, before.channel.id)
                                 await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", None, before.channel.id)
@@ -66,6 +67,7 @@ class Practice(commands.Cog):
                             await before.channel.edit(user_limit = 69)
                             await before.channel.edit(bitrate = 96000)
                         elif len(before.channel.members) == 0: # No one left in the channel
+                            print("Erasing data--no one left in channel")
                             async with con.transaction():
                                 await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", None, before.channel.id)
                                 await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", None, before.channel.id)
@@ -165,6 +167,7 @@ class Practice(commands.Cog):
                                 await con.execute("INSERT INTO user_data VALUES ($1, $2)", member.id, duration)
                         duration = (int(duration / 60), int((duration % 60)))
 
+                        print("Erasing data--member used $stop")
                         async with con.transaction():
                             await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", None, member.voice.channel.id)
                             await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", None, member.voice.channel.id)
