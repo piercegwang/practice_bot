@@ -8,6 +8,11 @@ class Practice(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    def edit_room(self, con, channel_id, properties):
+        async with con.transaction():
+            for key, value in properties:
+                await con.execute(f'UPDATE practice_rooms SET {key} = $2 WHERE voice_id = $1', value, channel_id)
+    
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         """
@@ -40,11 +45,12 @@ class Practice(commands.Cog):
                     if practice_room != None:
                         if practice_room["member"] == member.id: # Person leaving the channel is the person practicing
                             print("Erasing data--member left channel")
-                            async with con.transaction():
-                                await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", None, before.channel.id)
-                                await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", None, before.channel.id)
-                                await con.execute("UPDATE practice_rooms SET song = $1 WHERE voice_id = $2", None, before.channel.id)
-                                await con.execute("UPDATE practice_rooms SET minutes = $1 WHERE voice_id = $2", 0, before.channel.id)
+                            async self.edit_room(con, before.channel.id, {"member": None, "started_time": None, "song": None, "minutes": 0})
+                            # async with con.transaction():
+                            #     await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", None, before.channel.id)
+                            #     await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", None, before.channel.id)
+                            #     await con.execute("UPDATE practice_rooms SET song = $1 WHERE voice_id = $2", None, before.channel.id)
+                            #     await con.execute("UPDATE practice_rooms SET minutes = $1 WHERE voice_id = $2", 0, before.channel.id)
                             if practice_room["started_time"] != None or practice_room["minutes"] > 0: # They had a practice session
                                 if practice_room["started_time"] != None:
                                     duration = int((datetime.datetime.now() - practice_room["started_time"]).total_seconds() / 60) + practice_room["minutes"]
@@ -61,6 +67,8 @@ class Practice(commands.Cog):
                                 duration = (int(duration / 60), int((duration % 60)))
                                 await self.bot.get_channel(practice_room["text_id"]).send(f'The person who was practicing left the channel. {member.display_name} practiced {duration[0]} hours and {duration[1]} minutes.\nRoom: {before.channel.name}')
                                 print(f'{member.display_name} left the channel while practicing. They practiced {duration[0]} hours and {duration[1]} minutes.\nRoom: {before.channel.name}')
+                            else:
+                                print(f'{member.display_name} left the channel while practicing.')
                             if len(before.channel.members) > 0: # Mute everyone in case someone was excused
                                 for user in before.channel.members:
                                     await user.edit(mute=True)
