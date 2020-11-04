@@ -241,20 +241,22 @@ class Practice(commands.Cog):
             else:
                 practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
                 if practice_room != None:
+                    practicer = await ctx.guild.get_member(practice_room["member"])
+                    assert (practicer != None), "No one logged to be practicing!"
                     if practice_room["started_time"] != None:
                         duration = int((datetime.datetime.now() - practice_room["started_time"]).total_seconds() / 60) + practice_room["minutes"]
                         duration = (int(duration / 60), int((duration % 60)))
                         if practice_room["song"] == None:
-                            await ctx.send(f'{member.mention}, {ctx.guild.get_member(practice_room["member"]).display_name} has been practicing for {duration[0]} hours and {duration[1]} minutes')
+                            await ctx.send(f'{member.mention}, {practicer.display_name} has been practicing for {duration[0]} hours and {duration[1]} minutes')
                         else:
-                            await ctx.send(f'{member.mention}, {ctx.guild.get_member(practice_room["member"]).display_name} has been practicing {practice_room["song"]} for {duration[0]} hours and {duration[1]} minutes')
+                            await ctx.send(f'{member.mention}, {practicer.display_name} has been practicing {practice_room["song"]} for {duration[0]} hours and {duration[1]} minutes')
                     elif practice_room["minutes"] > 0:
                         duration = practice_room["minutes"]
                         duration = (int(duration / 60), int((duration % 60)))
                         if practice_room["song"] == None:
-                            await ctx.send(f'{member.mention}, {ctx.guild.get_member(practice_room["member"]).display_name} is taking a break and has been practicing for {duration[0]} hours and {duration[1]} minutes')
+                            await ctx.send(f'{member.mention}, {practicer.display_name} is taking a break and has been practicing for {duration[0]} hours and {duration[1]} minutes')
                         else:
-                            await ctx.send(f'{member.mention}, {ctx.guild.get_member(practice_room["member"]).display_name} is taking a break and has been practicing {practice_room["song"]} for {duration[0]} hours and {duration[1]} minutes')
+                            await ctx.send(f'{member.mention}, {practicer.display_name} is taking a break and has been practicing {practice_room["song"]} for {duration[0]} hours and {duration[1]} minutes')
                     else:
                         await ctx.send(f'{member.mention}, the person practicing hasn\'t started an official practice session yet!')
                 else:
