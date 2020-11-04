@@ -8,10 +8,10 @@ class Practice(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    async def edit_room(self, con, channel_id, properties):
-        async with con.transaction():
+    def edit_room(self, con, channel_id, properties):
+        with con.transaction():
             for key, value in properties:
-                await con.execute(f'UPDATE practice_rooms SET {key} = $2 WHERE voice_id = $1', value, channel_id)
+                con.execute(f'UPDATE practice_rooms SET {key} = $2 WHERE voice_id = $1', value, channel_id)
     
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
@@ -45,7 +45,7 @@ class Practice(commands.Cog):
                     if practice_room != None:
                         if practice_room["member"] == member.id: # Person leaving the channel is the person practicing
                             print("Erasing data--member left channel")
-                            async self.edit_room(con, before.channel.id, {"member": None, "started_time": None, "song": None, "minutes": 0})
+                            await self.edit_room(con, before.channel.id, {"member": None, "started_time": None, "song": None, "minutes": 0})
                             # async with con.transaction():
                             #     await con.execute("UPDATE practice_rooms SET member = $1 WHERE voice_id = $2", None, before.channel.id)
                             #     await con.execute("UPDATE practice_rooms SET started_time = $1 WHERE voice_id = $2", None, before.channel.id)
