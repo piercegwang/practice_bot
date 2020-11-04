@@ -8,7 +8,7 @@ class Practice(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    def edit_room(self, con, channel_id, properties):
+    async def edit_room(self, con, channel_id, properties):
         async with con.transaction():
             for key, value in properties:
                 await con.execute(f'UPDATE practice_rooms SET {key} = $2 WHERE voice_id = $1', value, channel_id)
