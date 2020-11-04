@@ -241,7 +241,7 @@ class Practice(commands.Cog):
             else:
                 practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
                 if practice_room != None:
-                    practicer = await ctx.guild.get_member(practice_room["member"])
+                    practicer = ctx.guild.get_member(practice_room["member"])
                     assert (practicer != None), "No one logged to be practicing!"
                     if practice_room["started_time"] != None:
                         duration = int((datetime.datetime.now() - practice_room["started_time"]).total_seconds() / 60) + practice_room["minutes"]
