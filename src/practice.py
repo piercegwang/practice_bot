@@ -62,7 +62,7 @@ class Practice(commands.Cog):
                                     duration = int((datetime.datetime.now() - practice_room["started_time"]).total_seconds() / 60) + practice_room["minutes"]
                                 else:
                                     duration = practice_room["minutes"]
-                                self.add_time(member.id, duration)
+                                await self.add_time(member.id, duration)
                                 print(f'{member.name} left the channel and stopped their practice session.')
                                 duration = (int(duration / 60), int((duration % 60)))
                                 await self.bot.get_channel(practice_room["text_id"]).send(f'The person who was practicing left the channel. {member.display_name} practiced {duration[0]} hours and {duration[1]} minutes.\nRoom: {before.channel.name}')
@@ -156,7 +156,7 @@ class Practice(commands.Cog):
                             duration = int((datetime.datetime.now() - practice_room["started_time"]).total_seconds() / 60) + practice_room["minutes"]
                         else: # On break, no started time or never started official practice session
                             duration = practice_room["minutes"]
-                        self.add_time(con, member.id, duration)
+                        await self.add_time(con, member.id, duration)
                         duration = (int(duration / 60), int((duration % 60)))
                         print("Erasing data--member used $stop")
                         await self.edit_room(con, member.voice.channel.id, {"member": None, "started_time": None, "song": None, "minutes": 0})
@@ -195,7 +195,8 @@ class Practice(commands.Cog):
                 practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
                 if practice_room != None:
                     practicer = ctx.guild.get_member(practice_room["member"])
-                    assert (practicer != None), "No one logged to be practicing!"
+                    if practicer == None:
+                        await ctx.send(f'{member.mention}, there is no one logged to be practicing in this channel at the moment. If you feel this is a mistake, please ping @Omar#4304!')
                     if practice_room["started_time"] != None:
                         duration = int((datetime.datetime.now() - practice_room["started_time"]).total_seconds() / 60) + practice_room["minutes"]
                         duration = (int(duration / 60), int((duration % 60)))
