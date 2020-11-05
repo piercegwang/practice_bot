@@ -10,10 +10,13 @@ class Practice(commands.Cog):
 
     async def edit_room(self, con, channel_id, properties):
         async with con.transaction():
+            print(f'Editing room {channel_id}:')
             for key, value in properties.items():
+                print(f'{key} = {value}')
                 await con.execute(f'UPDATE practice_rooms SET {key} = $1 WHERE voice_id = $2', value, channel_id)
 
     async def add_time(self, member_id, minutes):
+        print(f'Adding time for {member_id}: {minutes} minutes')
         user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", member_id)
         async with con.transaction():
             if user_info != None:
@@ -55,7 +58,6 @@ class Practice(commands.Cog):
                     practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", before.channel.id)
                     if practice_room != None:
                         if practice_room["member"] == member.id: # Person leaving the channel is the person practicing
-                            print("Erasing data--member left channel")
                             await self.edit_room(con, before.channel.id, {"member": None, "started_time": None, "song": None, "minutes": 0})
                             if practice_room["started_time"] != None or practice_room["minutes"] > 0: # They had a practice session
                                 if practice_room["started_time"] != None:
@@ -75,7 +77,6 @@ class Practice(commands.Cog):
                             await before.channel.edit(user_limit = 69)
                             await before.channel.edit(bitrate = 96000)
                         elif len(before.channel.members) == 0: # No one left in the channel
-                            print("Erasing data--no one left in channel")
                             await self.edit_room(con, before.channel.id, {"member": None, "started_time": None, "song": None, "minutes": 0})
                             await before.channel.edit(user_limit=69)
                             await before.channel.edit(bitrate = 96000)
@@ -158,7 +159,6 @@ class Practice(commands.Cog):
                             duration = practice_room["minutes"]
                         await self.add_time(con, member.id, duration)
                         duration = (int(duration / 60), int((duration % 60)))
-                        print("Erasing data--member used $stop")
                         await self.edit_room(con, member.voice.channel.id, {"member": None, "started_time": None, "song": None, "minutes": 0})
                         await member.edit(mute=True)
                         await ctx.send(f'{member.mention}, [ ] You\'re no longer practicing.\nThe user who was practicing has left or does not want to practice anymore. The first person to say \"$practice\" will be able to practice in this channel.\n {member.display_name} practiced for {duration[0]} hours and {duration[1]} minutes')
