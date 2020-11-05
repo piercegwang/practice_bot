@@ -8,8 +8,9 @@ class Practice(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    async def edit_room(self, con, channel_id, properties):
+    async def edit_room(self, con, channel_id, properties, reason):
         async with con.transaction():
+            print(f'Editing practice_room database; {reason}')
             print(f'Editing room {channel_id}:')
             for key, value in properties.items():
                 print(f'{key} = {value}')
@@ -43,8 +44,7 @@ class Practice(commands.Cog):
                     if practice_room != None:
                         print(f'Checkpoint 1: Members in channel: {len(after.channel.members)}')
                         if practice_room["member"] == None and len(after.channel.members) == 0: # No one is practicing yet
-                            await self.edit_room(con, after.channel.id, {"member": member.id})
-                            print(f'{member.display_name} joined an empty channel')
+                            await self.edit_room(con, after.channel.id, {"member": member.id}, f'{member.display_name} joined an empty channel')
                             await self.try_mute(member, False)
                         else: # Someone is practicing or other people are already in the channel
                             await self.try_mute(member, True)
@@ -58,7 +58,7 @@ class Practice(commands.Cog):
                     practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", before.channel.id)
                     if practice_room != None:
                         if practice_room["member"] == member.id: # Person leaving the channel is the person practicing
-                            await self.edit_room(con, before.channel.id, {"member": None, "started_time": None, "song": None, "minutes": 0})
+                            await self.edit_room(con, before.channel.id, {"member": None, "started_time": None, "song": None, "minutes": 0}, f'{member.display_name} left the channel while practicing')
                             if practice_room["started_time"] != None or practice_room["minutes"] > 0: # They had a practice session
                                 if practice_room["started_time"] != None:
                                     duration = int((datetime.datetime.now() - practice_room["started_time"]).total_seconds() / 60) + practice_room["minutes"]
@@ -77,7 +77,7 @@ class Practice(commands.Cog):
                             await before.channel.edit(user_limit = 69)
                             await before.channel.edit(bitrate = 96000)
                         elif len(before.channel.members) == 0: # No one left in the channel
-                            await self.edit_room(con, before.channel.id, {"member": None, "started_time": None, "song": None, "minutes": 0})
+                            await self.edit_room(con, before.channel.id, {"member": None, "started_time": None, "song": None, "minutes": 0}, f'{member.display_name} left and the channel is now empty')
                             await before.channel.edit(user_limit=69)
                             await before.channel.edit(bitrate = 96000)
     
@@ -92,7 +92,7 @@ class Practice(commands.Cog):
                 practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
                 if practice_room != None:
                     if (practice_room["member"] == member.id or practice_room["member"] == None) and practice_room["started_time"] == None:
-                        await self.edit_room(con, member.voice.channel.id, {"started_time": datetime.datetime.now(), "member": member.id})
+                        await self.edit_room(con, member.voice.channel.id, {"started_time": datetime.datetime.now(), "member": member.id}, f'{member.display_name} is now practicing')
                         await self.try_mute(member, False)
                         await ctx.send(member.mention + ", [X] You are now practicing.")
                         print(f'{member.display_name} started practice session')
@@ -113,7 +113,7 @@ class Practice(commands.Cog):
                 if practice_room != None:
                     if practice_room["member"] == member.id and practice_room["started_time"] != None:
                         duration = int((datetime.datetime.now() - practice_room["started_time"]).total_seconds() / 60) + practice_room["minutes"]
-                        await self.edit_room(con, member.voice.channel.id, {"minutes": duration, "started_time": None})
+                        await self.edit_room(con, member.voice.channel.id, {"minutes": duration, "started_time": None}, f'{member.display_name} is now resting.')
                         duration = (int(duration / 60), int((duration % 60)))
                         await ctx.send(f'{member.mention}, [ ] You\'re taking a break.\n {member.display_name} has practiced for {duration[0]} hours and {duration[1]} minutes.\n**Remember to type `$resume` when you start practicing again!**')
                     elif practice_room["member"] == member.id and practice_room["duration"] > 0:
@@ -134,7 +134,7 @@ class Practice(commands.Cog):
                 practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
                 if practice_room != None:
                     if (practice_room["member"] == member.id) and practice_room["started_time"] == None:
-                        await self.edit_room(con, member.voice.channel.id, {"started_time": datetime.datetime.now(), "member": member.id})
+                        await self.edit_room(con, member.voice.channel.id, {"started_time": datetime.datetime.now(), "member": member.id}, f'{member.display_name} has resumed their practice session.')
                         await ctx.send(member.mention + ", [X] You've resumed your practice session")
                         print(f'{member.display_name} started practice session')
                     else:
@@ -159,7 +159,7 @@ class Practice(commands.Cog):
                             duration = practice_room["minutes"]
                         await self.add_time(con, member.id, duration)
                         duration = (int(duration / 60), int((duration % 60)))
-                        await self.edit_room(con, member.voice.channel.id, {"member": None, "started_time": None, "song": None, "minutes": 0})
+                        await self.edit_room(con, member.voice.channel.id, {"member": None, "started_time": None, "song": None, "minutes": 0}, f'{member.display_name} $stop-ed their practice session.')
                         await member.edit(mute=True)
                         await ctx.send(f'{member.mention}, [ ] You\'re no longer practicing.\nThe user who was practicing has left or does not want to practice anymore. The first person to say \"$practice\" will be able to practice in this channel.\n {member.display_name} practiced for {duration[0]} hours and {duration[1]} minutes')
                     else:
@@ -178,7 +178,7 @@ class Practice(commands.Cog):
                     practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
                     if practice_room != None:
                         if practice_room["member"] == member.id and (practice_room["started_time"] != None or practice_room["duration"] > 0):
-                            await self.edit_room(con, member.voice.channel.id, {"song": given_song})
+                            await self.edit_room(con, member.voice.channel.id, {"song": given_song}, f'{member.display_name} changed the song.')
                             await ctx.send(member.mention + ", song set.")
                         else:
                             await ctx.send(member.mention + ", [ ] You must be in an official practice session to run this command! If no one else is practicing in this channel, then type $practice to start a session!")
