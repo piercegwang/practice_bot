@@ -13,13 +13,15 @@ class Practice(commands.Cog):
             print(f'Editing practice_room database; {reason}')
             print(f'Editing room {channel_id}:')
             for key, value in properties.items():
-                print(f'{key} = {value}')
+                print(f'+ {key} = {value}')
                 await con.execute(f'UPDATE practice_rooms SET {key} = $1 WHERE voice_id = $2', value, channel_id)
+        print(f'--')
 
     async def add_time(self, con, member_id, minutes):
-        print(f'Adding time for {member_id}: {minutes} minutes')
         user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", member_id)
+        print(f'Editing user {member_id}')
         async with con.transaction():
+            print(f'+ minutes += {minutes}')
             if user_info != None:
                 await con.execute("UPDATE user_data SET total_practice = $1 WHERE member_id = $2", user_info["total_practice"] + minutes, member_id)
             else:
@@ -194,6 +196,7 @@ class Practice(commands.Cog):
             else:
                 practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
                 if practice_room != None:
+                    print(f'Database member id currently: {practice_room["member"]}')
                     practicer = ctx.guild.get_member(practice_room["member"])
                     if practicer == None:
                         await ctx.send(f'{member.mention}, there is no one logged to be practicing in this channel at the moment. If you feel this is a mistake, please ping @Omar#4304!')
