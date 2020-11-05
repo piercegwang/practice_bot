@@ -72,9 +72,11 @@ class Practice(commands.Cog):
             if before.channel != after.channel:
                 # Checking if there is a dictionary entry for the given guild and if there has been a channel change
                 if after.channel is not None: # User is joining a channel
+                    num_members = len(after.channel.members)
                     practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", after.channel.id)
                     if practice_room != None:
-                        if practice_room["member"] == None and len(after.channel.members) == 1: # No one is practicing yet
+                        print(f'Checkpoint 1: Members in channel: {num_members}')
+                        if practice_room["member"] == None and num_members == 0: # No one is practicing yet
                             await self.edit_room(con, after.channel.id, {"member": member.id}, f'{member.display_name} joined an empty channel')
                             await self.try_mute(member, False)
                         else: # Someone is practicing or other people are already in the channel
@@ -88,8 +90,10 @@ class Practice(commands.Cog):
                 if before.channel is not None: # User is leaving a channel
                     practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", before.channel.id)
                     if practice_room != None:
-                        print(f'number of members left in the channel: {len(before.channel.members)}')
-                        print(f'Users left: {before.channel.members}')
+                        members = before.channel.members
+                        num_members = len(members)
+                        print(f'number of members left in the channel: {num_members}')
+                        print(f'Users left: {members}')
                         if practice_room["member"] == member.id: # Person leaving the channel is the person practicing
                             await self.edit_room(con, before.channel.id, {"member": None, "started_time": None, "song": None, "minutes": 0}, f'{member.display_name} left the channel while practicing')
                             if practice_room["started_time"] != None or practice_room["minutes"] > 0: # They had a practice session
@@ -104,12 +108,12 @@ class Practice(commands.Cog):
                                 print(f'{member.display_name} left the channel while practicing. They practiced {duration[0]} hours and {duration[1]} minutes.\nRoom: {before.channel.name}')
                             else:
                                 print(f'{member.display_name} left the channel while practicing.')
-                            if len(before.channel.members) > 0: # Mute everyone in case someone was excused
-                                for user in before.channel.members:
+                            if num_members > 0: # Mute everyone in case someone was excused
+                                for user in members:
                                     await user.edit(mute=True)
                             await before.channel.edit(user_limit = 69)
                             await before.channel.edit(bitrate = 96000)
-                        elif len(before.channel.members) == 0: # No one left in the channel
+                        elif num_members == 0: # No one left in the channel
                             await self.edit_room(con, before.channel.id, {"member": None, "started_time": None, "song": None, "minutes": 0}, f'{member.display_name} left and the channel is now empty')
                             await before.channel.edit(user_limit=69)
                             await before.channel.edit(bitrate = 96000)
