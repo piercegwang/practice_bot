@@ -198,8 +198,8 @@ class Practice(commands.Cog):
                 if practice_room != None:
                     print(f'Database member id currently: {practice_room["member"]}')
                     practicer = ctx.guild.get_member(practice_room["member"])
-                    if practicer == None:
-                        await ctx.send(f'{member.mention}, there is no one logged to be practicing in this channel at the moment. If you feel this is a mistake, please ping @Omar#4304!')
+                    if practicer == None and practice_room["member"] != None:
+                        await ctx.send(f'{member.mention}, Someone is logged to be practicing at the moment, but the `get_member` function isn\'t working. Omar is working on fixing this now!')
                     if practice_room["started_time"] != None:
                         duration = int((datetime.datetime.now() - practice_room["started_time"]).total_seconds() / 60) + practice_room["minutes"]
                         duration = (int(duration / 60), int((duration % 60)))

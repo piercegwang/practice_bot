@@ -19,8 +19,10 @@ logger.addHandler(handler)
 
 description = """I am a Discord Bot made by Pierce Wang specifically for practice rooms in Heifetz. Do $help for the list of my commands.
 In order to get started, just join one of the practice rooms on the side and start a practice session using the command below (with a '$' in front of it)!"""
+intents = discord.Intents.default()
+intents.members = True
 
-bot = commands.Bot(command_prefix='$', description=description)
+bot = commands.Bot(command_prefix='$', description=description, intents=intents)
 bot.remove_command('help')
 
 async def create_connection_pool():
