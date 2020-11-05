@@ -9,6 +9,17 @@ class Practice(commands.Cog):
         self.bot = bot
 
     async def edit_room(self, con, channel_id, properties, reason):
+        """Documentation for edit_room: edits the room in the PostGreSQL database
+
+        Args: con, channel_id, properties, reason
+        :param con: an instance of self.bot.pg_conn.acquire()
+        :param channel_id: a voice channel id to query the database
+        :param properties: properties to change: member, started_time, song, minutes
+        :param reason: A string to print in the log
+        
+        :returns: None
+        :raises keyError: None
+        """
         async with con.transaction():
             print(f'Editing practice_room database; {reason}')
             print(f'Editing room {channel_id}:')
@@ -18,6 +29,16 @@ class Practice(commands.Cog):
         print(f'--')
 
     async def add_time(self, con, member_id, minutes):
+        """Documentation for add_time: adding time for a user in PostGreSQL database
+
+        Args: con, member_id, minutes
+        :param con: an instance of self.bot.pg_conn.acquire()
+        :param member_id: a member id to query in database
+        :param minutes: minutes to add to their time
+        
+        :returns: None
+        :raises keyError: None
+        """
         user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", member_id)
         print(f'Editing user {member_id}')
         async with con.transaction():
@@ -28,6 +49,15 @@ class Practice(commands.Cog):
                 await con.execute("INSERT INTO user_data VALUES ($1, $2)", member_id, minutes)
 
     async def try_mute(self, member, mute):
+        """Documentation for try_mute: wrapping try-catch block around mute
+
+        Args: member, mute
+        :param member: a member object
+        :param mute: a boolean describing whether to mute or unmute the member
+        
+        :returns: None
+        :raises keyError: None
+        """
         try:
             await member.edit(mute=mute)
         except:
@@ -44,7 +74,6 @@ class Practice(commands.Cog):
                 if after.channel is not None: # User is joining a channel
                     practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", after.channel.id)
                     if practice_room != None:
-                        print(f'Checkpoint 1: Members in channel: {len(after.channel.members)}')
                         if practice_room["member"] == None and len(after.channel.members) == 0: # No one is practicing yet
                             await self.edit_room(con, after.channel.id, {"member": member.id}, f'{member.display_name} joined an empty channel')
                             await self.try_mute(member, False)
@@ -358,7 +387,6 @@ class Practice(commands.Cog):
                     await ctx.send("Practice room does not exist yet.")
             else:
                 await ctx.send("Please enter a valid voice channel id.")
-
 
 def setup(bot):
     bot.add_cog(Practice(bot))
