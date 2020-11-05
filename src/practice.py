@@ -70,20 +70,12 @@ class Practice(commands.Cog):
         """
         async with self.bot.pg_conn.acquire() as con:
             if before.channel != after.channel:
-                # Catch and store these values as early as possible
-                if after.channel is not None:
+                if after.channel is not None: # User is joining a channel
                     num_members_after = len(after.channel.members)
                     print(f'Before: number of members left in channel: {num_members_after}')
-                if before.channel is not None:
-                    members_before = before.channel.members
-                    num_members_before = len(members_before)
-                    print(f'After: number of members left in the channel: {num_members_before}')
-                    print(f'Users left: {members_before}')
-
-                if after.channel is not None: # User is joining a channel
                     practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", after.channel.id)
                     if practice_room != None:
-                        if practice_room["member"] == None and num_members_after == 0: # No one is practicing yet
+                        if practice_room["member"] == None and num_members_after == 1: # No one is practicing yet
                             await self.edit_room(con, after.channel.id, {"member": member.id}, f'{member.display_name} joined an empty channel')
                             await self.try_mute(member, False)
                         else: # Someone is practicing or other people are already in the channel
@@ -95,6 +87,10 @@ class Practice(commands.Cog):
                             print(f'No permission to mute user on {member.guild.name}')
 
                 if before.channel is not None: # User is leaving a channel
+                    members_before = before.channel.members
+                    num_members_before = len(members_before)
+                    print(f'After: number of members left in the channel: {num_members_before}')
+                    print(f'Users left: {members_before}')
                     practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", before.channel.id)
                     if practice_room != None:
                         if practice_room["member"] == member.id: # Person leaving the channel is the person practicing
@@ -116,10 +112,10 @@ class Practice(commands.Cog):
                                     await user.edit(mute=True)
                             await before.channel.edit(user_limit = 69)
                             await before.channel.edit(bitrate = 96000)
-                        # elif num_members_before == 0: # No one left in the channel
-                        #     await self.edit_room(con, before.channel.id, {"member": None, "started_time": None, "song": None, "minutes": 0}, f'{member.display_name} left and the channel is now empty')
-                        #     await before.channel.edit(user_limit=69)
-                        #     await before.channel.edit(bitrate = 96000)
+                        elif num_members_before == 0: # No one left in the channel
+                            await self.edit_room(con, before.channel.id, {"member": None, "started_time": None, "song": None, "minutes": 0}, f'{member.display_name} left and the channel is now empty')
+                            await before.channel.edit(user_limit=69)
+                            await before.channel.edit(bitrate = 96000)
     
     @commands.command(pass_context=True)
     async def practice(self, ctx):
