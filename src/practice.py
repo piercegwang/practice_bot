@@ -8,10 +8,10 @@ class Practice(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    def edit_room(self, con, channel_id, properties):
-        with con.transaction():
+    async def edit_room(self, con, channel_id, properties):
+        async with con.transaction():
             for key, value in properties:
-                con.execute(f'UPDATE practice_rooms SET {key} = $2 WHERE voice_id = $1', value, channel_id)
+                await con.execute(f'UPDATE practice_rooms SET {key} = $2 WHERE voice_id = $1', value, channel_id)
     
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
@@ -26,7 +26,7 @@ class Practice(commands.Cog):
                     if practice_room != None:
                         print(f'Checkpoint 1: Members in channel: {len(after.channel.members)}')
                         if practice_room["member"] == None and len(after.channel.members) == 0: # No one is practicing yet
-                            await self.edit_room(con, after.channel.id, {"member": member.id})
+                            self.edit_room(con, after.channel.id, {"member": member.id})
                             print(f'{member.display_name} joined an empty channel')
                             await member.edit(mute=False)
                         else: # Someone is practicing or other people are already in the channel
