@@ -91,7 +91,7 @@ class Practice(commands.Cog):
                 practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
                 if practice_room != None:
                     if (practice_room["member"] == member.id or practice_room["member"] == None) and practice_room["started_time"] == None:
-                        self.edit_room(con, member.voice.channel.id, {"started_time": datetime.datetime.now(), "member_id" = member.id})
+                        self.edit_room(con, member.voice.channel.id, {"started_time": datetime.datetime.now(), "member_id": member.id})
                         self.try_mute(member, False)
                         await ctx.send(member.mention + ", [X] You are now practicing.")
                         print(f'{member.display_name} started practice session')
