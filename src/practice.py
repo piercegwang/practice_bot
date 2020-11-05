@@ -88,6 +88,8 @@ class Practice(commands.Cog):
                 if before.channel is not None: # User is leaving a channel
                     practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", before.channel.id)
                     if practice_room != None:
+                        print(f'number of members left in the channel: {len(before.channel.members)}')
+                        print(f'Users left: {before.channel.members}')
                         if practice_room["member"] == member.id: # Person leaving the channel is the person practicing
                             await self.edit_room(con, before.channel.id, {"member": None, "started_time": None, "song": None, "minutes": 0}, f'{member.display_name} left the channel while practicing')
                             if practice_room["started_time"] != None or practice_room["minutes"] > 0: # They had a practice session
