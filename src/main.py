@@ -22,7 +22,7 @@ In order to get started, just join one of the practice rooms on the side and sta
 
 intents = discord.Intents.default()
 intents.members = True
-bot = commands.Bot(command_prefix='$', description=description),  intents=intents)
+bot = commands.Bot(command_prefix='$', description=description,  intents=intents)
 bot.remove_command('help')
 
 async def create_connection_pool():
