@@ -11,7 +11,7 @@ class Practice(commands.Cog):
     async def edit_room(self, con, channel_id, properties):
         async with con.transaction():
             for key, value in properties.items():
-                await con.execute(f'UPDATE practice_rooms SET {key} = $2 WHERE voice_id = $1', value, channel_id)
+                await con.execute("UPDATE practice_rooms SET {key} = $1 WHERE voice_id = $2", value, channel_id)
 
     async def add_time(self, member_id, minutes):
         user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", member_id)
