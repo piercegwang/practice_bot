@@ -70,6 +70,7 @@ class Practice(commands.Cog):
         """
         async with self.bot.pg_conn.acquire() as con:
             if before.channel != after.channel:
+                # Catch and store these values as early as possible
                 if after.channel is not None:
                     num_members_after = len(after.channel.members)
                     print(f'Before: number of members left in channel: {num_members_after}')
@@ -78,6 +79,7 @@ class Practice(commands.Cog):
                     num_members_before = len(members_before)
                     print(f'After: number of members left in the channel: {num_members_before}')
                     print(f'Users left: {members_before}')
+
                 if after.channel is not None: # User is joining a channel
                     practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", after.channel.id)
                     if practice_room != None:
@@ -114,10 +116,10 @@ class Practice(commands.Cog):
                                     await user.edit(mute=True)
                             await before.channel.edit(user_limit = 69)
                             await before.channel.edit(bitrate = 96000)
-                        elif num_members_before == 0: # No one left in the channel
-                            await self.edit_room(con, before.channel.id, {"member": None, "started_time": None, "song": None, "minutes": 0}, f'{member.display_name} left and the channel is now empty')
-                            await before.channel.edit(user_limit=69)
-                            await before.channel.edit(bitrate = 96000)
+                        # elif num_members_before == 0: # No one left in the channel
+                        #     await self.edit_room(con, before.channel.id, {"member": None, "started_time": None, "song": None, "minutes": 0}, f'{member.display_name} left and the channel is now empty')
+                        #     await before.channel.edit(user_limit=69)
+                        #     await before.channel.edit(bitrate = 96000)
     
     @commands.command(pass_context=True)
     async def practice(self, ctx):
