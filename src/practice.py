@@ -197,7 +197,7 @@ class Practice(commands.Cog):
                 practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
                 if practice_room != None:
                     print(f'Database member id currently: {practice_room["member"]}')
-                    practicer = ctx.guild.fetch_member(practice_room["member"])
+                    practicer = await ctx.guild.fetch_member(practice_room["member"])
                     if practicer == None and practice_room["member"] != None:
                         await ctx.send(f'{member.mention}, Someone is logged to be practicing at the moment, but the `get_member` function isn\'t working. Omar is working on fixing this now!')
                     if practice_room["started_time"] != None:
@@ -310,7 +310,7 @@ class Practice(commands.Cog):
     @commands.command(pass_context=True)
     async def stats_silent(self, ctx, *, user_id : int = 0):
         member = ctx.author
-        stats_member = ctx.guild.fetch_member(user_id)
+        stats_member = await ctx.guild.fetch_member(user_id)
         if stats_member != None:
             user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", user_id)
             if user_info != None:
