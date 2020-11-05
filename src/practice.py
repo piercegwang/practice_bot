@@ -74,7 +74,7 @@ class Practice(commands.Cog):
                 if after.channel is not None: # User is joining a channel
                     practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", after.channel.id)
                     if practice_room != None:
-                        if practice_room["member"] == None and len(after.channel.members) == 0: # No one is practicing yet
+                        if practice_room["member"] == None and len(after.channel.members) == 1: # No one is practicing yet
                             await self.edit_room(con, after.channel.id, {"member": member.id}, f'{member.display_name} joined an empty channel')
                             await self.try_mute(member, False)
                         else: # Someone is practicing or other people are already in the channel
