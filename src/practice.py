@@ -15,7 +15,7 @@ class Practice(commands.Cog):
                 print(f'{key} = {value}')
                 await con.execute(f'UPDATE practice_rooms SET {key} = $1 WHERE voice_id = $2', value, channel_id)
 
-    async def add_time(self, member_id, minutes):
+    async def add_time(self, con, member_id, minutes):
         print(f'Adding time for {member_id}: {minutes} minutes')
         user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", member_id)
         async with con.transaction():
@@ -64,7 +64,7 @@ class Practice(commands.Cog):
                                     duration = int((datetime.datetime.now() - practice_room["started_time"]).total_seconds() / 60) + practice_room["minutes"]
                                 else:
                                     duration = practice_room["minutes"]
-                                await self.add_time(member.id, duration)
+                                await self.add_time(con, member.id, duration)
                                 print(f'{member.name} left the channel and stopped their practice session.')
                                 duration = (int(duration / 60), int((duration % 60)))
                                 await self.bot.get_channel(practice_room["text_id"]).send(f'The person who was practicing left the channel. {member.display_name} practiced {duration[0]} hours and {duration[1]} minutes.\nRoom: {before.channel.name}')
