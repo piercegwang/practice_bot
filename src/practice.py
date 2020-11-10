@@ -338,10 +338,12 @@ class Practice(commands.Cog):
                 channel = await member.create_dm()
                 embed = discord.Embed(title=f'Your practice stats')
                 embed.add_field(name="Total Practice Time", value=f'Your total time practiced is: {int(user_info["total_practice"] / 60)} hours and {user_info["total_practice"] % 60} minutes.', inline=False)
-                embed.set_footer(text="If you believe there is a mistake, please contact @Omar#4304. This message deletes after 20 seconds.")
-                await channel.send(embed=embed, delete_after = 20.0)
+                embed.set_footer(text="If you believe there is a mistake, please contact @Omar#4304.")
+                await channel.send(embed=embed)
+                await ctx.send(f'{member.mention}, Pratiser slid into your dm\'s!')
             else:
-                await ctx.send(f'We don\'t have any data on you!')
+                await channel.send(f'We don\'t have any data on you!')
+                await ctx.send(f'{member.mention}, Pratiser slid into your dm\'s!')
 
     @commands.command(pass_context=True)
     async def stats_silent(self, ctx, *, user_id : int = 0):
