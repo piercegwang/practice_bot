@@ -323,14 +323,15 @@ class Practice(commands.Cog):
     async def stats(self, ctx):
         member = ctx.author
         if len(ctx.message.mentions) > 0:
-            user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", ctx.message.mentions[0].id)
-            if user_info != None:
-                embed = discord.Embed(title=f'{ctx.message.mentions[0].display_name}\'s Stats')
-                embed.add_field(name="Total Practice Time", value=f'Your total time practiced is: {int(user_info["total_practice"] / 60)} hours and {user_info["total_practice"] % 60} minutes.', inline=False)
-                embed.set_footer(text="If you believe there is a mistake, please contact @Omar#4304. This message deletes after 20 seconds.")
-                await ctx.send(embed=embed, delete_after = 20.0)
-            else:
-                await ctx.send(f'There is no data on {ctx.message.mentions[0].display_name}!')
+            await ctx.send(f'{member.mention}, the ability to check other people\'s stats has been disabled.')
+            # user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", ctx.message.mentions[0].id)
+            # if user_info != None:
+            #     embed = discord.Embed(title=f'{ctx.message.mentions[0].display_name}\'s Stats')
+            #     embed.add_field(name="Total Practice Time", value=f'Your total time practiced is: {int(user_info["total_practice"] / 60)} hours and {user_info["total_practice"] % 60} minutes.', inline=False)
+            #     embed.set_footer(text="If you believe there is a mistake, please contact @Omar#4304. This message deletes after 20 seconds.")
+            #     await ctx.send(embed=embed, delete_after = 20.0)
+            # else:
+            #     await ctx.send(f'There is no data on {ctx.message.mentions[0].display_name}!')
         else:
             user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", member.id)
             if user_info != None:
@@ -344,18 +345,19 @@ class Practice(commands.Cog):
     @commands.command(pass_context=True)
     async def stats_silent(self, ctx, *, user_id : int = 0):
         member = ctx.author
-        stats_member = await ctx.guild.fetch_member(user_id)
-        if stats_member != None:
-            user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", user_id)
-            if user_info != None:
-                embed = discord.Embed(title=f'{stats_member.display_name}\'s Stats')
-                embed.add_field(name="Total Practice Time", value=f'Your total time practiced is: {int(user_info["total_practice"] / 60)} hours and {user_info["total_practice"] % 60} minutes.', inline=False)
-                embed.set_footer(text="If you believe there is a mistake, please contact @Omar#4304. This message deletes after 20 seconds.")
-                await ctx.send(embed=embed, delete_after = 20.0)
-            else:
-                await ctx.send(f'There is no data on {stats_member.display_name}!')
-        else:
-            await ctx.send(f'{member.mention}, please include a user id!')
+        await ctx.send(f'{member.mention}, this command has been disabled.')
+        # stats_member = await ctx.guild.fetch_member(user_id)
+        # if stats_member != None:
+        #     user_info = await self.bot.pg_conn.fetchrow("SELECT * FROM user_data WHERE member_id = $1", user_id)
+        #     if user_info != None:
+        #         embed = discord.Embed(title=f'{stats_member.display_name}\'s Stats')
+        #         embed.add_field(name="Total Practice Time", value=f'Your total time practiced is: {int(user_info["total_practice"] / 60)} hours and {user_info["total_practice"] % 60} minutes.', inline=False)
+        #         embed.set_footer(text="If you believe there is a mistake, please contact @Omar#4304. This message deletes after 20 seconds.")
+        #         await ctx.send(embed=embed, delete_after = 20.0)
+        #     else:
+        #         await ctx.send(f'There is no data on {stats_member.display_name}!')
+        # else:
+        #     await ctx.send(f'{member.mention}, please include a user id!')
 
     @commands.command(pass_context=True)
     async def add_practice_room(self, ctx, channel_id, text_id):
