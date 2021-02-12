@@ -110,11 +110,11 @@ class Practice(commands.Cog):
                             if num_members_before > 0: # Mute everyone in case someone was excused
                                 for user in members_before:
                                     await user.edit(mute=True)
-                            await before.channel.edit(user_limit = 69)
+                            await before.channel.edit(user_limit = 99)
                             await before.channel.edit(bitrate = 96000)
                         elif num_members_before == 0: # No one left in the channel
                             await self.edit_room(con, before.channel.id, {"member": None, "started_time": None, "song": None, "minutes": 0}, f'{member.display_name} left and the channel is now empty')
-                            await before.channel.edit(user_limit=69)
+                            await before.channel.edit(user_limit=99)
                             await before.channel.edit(bitrate = 96000)
     
     @commands.command(pass_context=True)
