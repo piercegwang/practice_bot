@@ -51,7 +51,7 @@ async def help(ctx):
     embed.add_field(name="$unexcuse", value="Mutes a user once they are done giving feedback.", inline=False)
     embed.add_field(name="$userlimit", value="Set the user limit for a channel.", inline=False)
     embed.add_field(name="$setbit", value="Set the bitrate for a channel. This value can be any integer ranging from 8 to 128 inclusive. The default is 96.", inline=False)
-    embed.add_field(name="$break", value="Breaks are healthy! If you need to take a break, type $break and the bot will pause your timer so you can rest.", inline=False)
+    embed.add_field(name="$break", value="Breaks are healthy! If you need to take a break, type $break and the bot will pause your timer so you can rest. Usage: $break <optional timer--enter in minutes>", inline=False)
     embed.add_field(name="$resume", value="Continue practicing when you're done taking a break!", inline=False)
     embed.add_field(name="$np", value="This command will tell you information about the user practicing.", inline=False)
     embed.add_field(name="$stop", value="If you don't want to practice anymore, you can use $stop to tell the bot that you are done practicing. `$nomore` is also an alias to this command.", inline=False)
@@ -62,7 +62,7 @@ async def help(ctx):
 @bot.command()
 async def credits(ctx):
     embed=discord.Embed(title="Credits", description="", color=0x3c7f61)
-    embed.set_author(name="Creation", value = "This bot was made with love by Pierce using Discord.py. It was heavily inspired by Ray Chen's Discord's \"Shush bot\"", inline=True)
+    embed.set_author(name="Creation", value = "This bot was made by Pierce using Discord.py. It was heavily inspired by Ray Chen's Discord's \"Shush bot\" but has since been updated with a larger feature set.", inline=True)
     await ctx.send(embed=embed, delete_after = 10.0)
 
 @bot.command()
