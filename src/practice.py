@@ -3,6 +3,7 @@ from discord.ext import commands
 import datetime
 import os
 import asyncpg
+import asyncio
 
 class Practice(commands.Cog):
     def __init__(self, bot):
@@ -157,7 +158,9 @@ class Practice(commands.Cog):
                             wait = 60 * time
                             await ctx.send(f'{member.mention}, [ ] You\'re taking a {time} minute break.\n {member.display_name} has practiced for {duration[0]} hours and {duration[1]} minutes.\nYour practice session will continue soon!')
                             await asyncio.sleep(wait)
-                            await resume(ctx)
+                            practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
+                            if practice_room["member"] == member.id and practice_room["started_time"] == None:
+                                await ctx.send(f'{member.mention}, *nudge*, Your {time} minute timer to start you practice session has ended!')
                     elif practice_room["member"] == member.id and practice_room["duration"] > 0:
                         await ctx.send(member.mention + ", [ ] You're already on a break! Do `$resume` to continue your practice session.")
                     else:
