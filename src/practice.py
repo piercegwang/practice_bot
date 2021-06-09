@@ -161,6 +161,8 @@ class Practice(commands.Cog):
                             practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
                             if practice_room["member"] == member.id and practice_room["started_time"] == None:
                                 await ctx.send(f'{member.mention}, *nudge*, Your {time} minute timer to start you practice session has ended!')
+                            if practice_room["member"] == member.id and practice_room["started_time"] != None:
+                                await ctx.send(f'{member.mention}, Your {time} minute timer to start you practice session has ended, but you\'re already practicing. Good for you!')
                     elif practice_room["member"] == member.id and practice_room["duration"] > 0:
                         await ctx.send(member.mention + ", [ ] You're already on a break! Do `$resume` to continue your practice session.")
                     else:
