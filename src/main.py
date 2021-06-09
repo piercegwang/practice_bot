@@ -62,7 +62,7 @@ async def help(ctx):
 @bot.command()
 async def credits(ctx):
     embed=discord.Embed(title="Credits", description="", color=0x3c7f61)
-    embed.set_author(name="Creation", value = "This bot was made by Pierce using Discord.py. It was heavily inspired by Ray Chen's Discord's \"Shush bot\" but has since been updated with a larger feature set.", inline=True)
+    embed.add_field(name="Creation", value = "This bot was made by Pierce using Discord.py. It was heavily inspired by Ray Chen's Discord's \"Shush bot\" but has since been updated with a larger feature set.", inline=True)
     await ctx.send(embed=embed, delete_after = 10.0)
 
 @bot.command()
