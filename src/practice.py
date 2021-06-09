@@ -155,7 +155,7 @@ class Practice(commands.Cog):
                         if not time:
                             await ctx.send(f'{member.mention}, [ ] You\'re taking a break.\n {member.display_name} has practiced for {duration[0]} hours and {duration[1]} minutes.\n**Remember to type `$resume` when you start practicing again!**')
                         elif time.isnumeric():
-                            wait = 60 * time
+                            wait = 60 * int(time)
                             await ctx.send(f'{member.mention}, [ ] You\'re taking a {time} minute break.\n {member.display_name} has practiced for {duration[0]} hours and {duration[1]} minutes.\nYour practice session will continue soon!')
                             await asyncio.sleep(wait)
                             practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
