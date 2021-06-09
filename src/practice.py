@@ -138,8 +138,8 @@ class Practice(commands.Cog):
                     await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
 
     @commands.command(pass_context=True, aliases=['break'])
-    async def rest(self, ctx):
-        """Take a break."""
+    async def rest(self, ctx, time=None):
+        """Take a break. Use with a time argument (in minutes) to take a timed break."""
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
             if member.voice == None:
@@ -151,7 +151,13 @@ class Practice(commands.Cog):
                         duration = int((datetime.datetime.now() - practice_room["started_time"]).total_seconds() / 60) + practice_room["minutes"]
                         await self.edit_room(con, member.voice.channel.id, {"minutes": duration, "started_time": None}, f'{member.display_name} is now resting.')
                         duration = (int(duration / 60), int((duration % 60)))
-                        await ctx.send(f'{member.mention}, [ ] You\'re taking a break.\n {member.display_name} has practiced for {duration[0]} hours and {duration[1]} minutes.\n**Remember to type `$resume` when you start practicing again!**')
+                        if not time:
+                            await ctx.send(f'{member.mention}, [ ] You\'re taking a break.\n {member.display_name} has practiced for {duration[0]} hours and {duration[1]} minutes.\n**Remember to type `$resume` when you start practicing again!**')
+                        elif time.isnumeric():
+                            wait = 60 * time
+                            await ctx.send(f'{member.mention}, [ ] You\'re taking a {time} minute break.\n {member.display_name} has practiced for {duration[0]} hours and {duration[1]} minutes.\nYour practice session will continue soon!')
+                            await asyncio.sleep(wait)
+                            await resume(ctx)
                     elif practice_room["member"] == member.id and practice_room["duration"] > 0:
                         await ctx.send(member.mention + ", [ ] You're already on a break! Do `$resume` to continue your practice session.")
                     else:
@@ -171,7 +177,7 @@ class Practice(commands.Cog):
                 if practice_room != None:
                     if (practice_room["member"] == member.id) and practice_room["started_time"] == None:
                         await self.edit_room(con, member.voice.channel.id, {"started_time": datetime.datetime.now(), "member": member.id}, f'{member.display_name} has resumed their practice session.')
-                        await ctx.send(member.mention + ", [X] You've resumed your practice session")
+                        await ctx.send(f'{member.mention}, [X] You\'re practice session has been resumed')
                         print(f'{member.display_name} started practice session')
                     else:
                         await ctx.send(member.mention + ", [ ] Practice session not started. You may already be practicing or someone else may be practicing!")
