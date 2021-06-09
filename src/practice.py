@@ -153,7 +153,7 @@ class Practice(commands.Cog):
                         await self.edit_room(con, member.voice.channel.id, {"minutes": duration, "started_time": None}, f'{member.display_name} is now resting.')
                         duration = (int(duration / 60), int((duration % 60)))
                         if not time:
-                            await ctx.send(f'{member.mention}, [ ] You\'re taking a break.\n {member.display_name} has practiced for {duration[0]} hours and {duration[1]} minutes.\n**Remember to type `$resume` when you start practicing again!**')
+                            await ctx.send(f'{member.mention}, [ ] You\'re taking a break of indefinite time.\n {member.display_name} has practiced for {duration[0]} hours and {duration[1]} minutes.\n**Remember to type `$resume` when you start practicing again!** If you want to take a timed break next time, please use `$break <time in minutes>`. E.g. `$break 10` for a 10-minute break.')
                         elif time.isnumeric():
                             wait = 60 * int(time)
                             await ctx.send(f'{member.mention}, [ ] You\'re taking a {time} minute break.\n {member.display_name} has practiced for {duration[0]} hours and {duration[1]} minutes.\nYour practice session will continue soon!')
