@@ -118,7 +118,7 @@ class Practice(commands.Cog):
                             await before.channel.edit(user_limit=99)
                             await before.channel.edit(bitrate = 96000)
     
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['p'])
     async def practice(self, ctx):
         """Start a practice session."""
         member = ctx.author
@@ -138,7 +138,7 @@ class Practice(commands.Cog):
                 else:
                     await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
 
-    @commands.command(pass_context=True, aliases=['break'])
+    @commands.command(pass_context=True, aliases=['break', 'b'])
     async def rest(self, ctx, time=None):
         """Take a break. Use with a time argument (in minutes) to take a timed break."""
         member = ctx.author
@@ -170,7 +170,7 @@ class Practice(commands.Cog):
                 else:
                     await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['r'])
     async def resume(self, ctx):
         """Resume from after a break."""
         member = ctx.author
@@ -189,7 +189,7 @@ class Practice(commands.Cog):
                 else:
                     await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
 
-    @commands.command(pass_context=True, aliases=['nomore'])
+    @commands.command(pass_context=True, aliases=['nomore', 'n', 'st'])
     async def stop(self, ctx):
         """Stop a practice session."""
         member = ctx.author
@@ -214,7 +214,7 @@ class Practice(commands.Cog):
                 else:
                     await ctx.send(member.mention + ", You must be in one of the practice room voice channels to use this command!")
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['piece', 's'])
     async def song(self, ctx, *, given_song : str = ""):
         member = ctx.author
         if given_song != "":
@@ -264,7 +264,7 @@ class Practice(commands.Cog):
                 else:
                     await ctx.send(f'{member.mention}, [ ] You are either not in a practice channel or you are not in an official practice session. If it is the latter, then type $practice to start a session!')
 
-    @commands.command(pass_context=True, aliases=['unmute'])
+    @commands.command(pass_context=True, aliases=['unmute', 'um'])
     async def excuse(self, ctx, *, mentions):
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
@@ -282,7 +282,7 @@ class Practice(commands.Cog):
                     else:
                         await ctx.send(member.mention + ", you're not the one practicing!")
 
-    @commands.command(pass_context=True, aliases=['mute', 'shush'])
+    @commands.command(pass_context=True, aliases=['mute', 'shush', 'mu'])
     async def unexcuse(self, ctx, *, mentions):
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
@@ -300,7 +300,7 @@ class Practice(commands.Cog):
                     else:
                         await ctx.send(member.mention + ", you're not the one practicing!")
 
-    @commands.command(pass_context=True, aliases=['limit'])
+    @commands.command(pass_context=True, aliases=['limit', 'lim'])
     async def userlimit(self, ctx, given_limit : int):
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
