@@ -160,7 +160,7 @@ class Practice(commands.Cog):
                             await asyncio.sleep(wait)
                             practice_room = await self.bot.pg_conn.fetchrow("SELECT * FROM practice_rooms WHERE voice_id = $1", member.voice.channel.id)
                             if practice_room["member"] == member.id and practice_room["started_time"] == None:
-                                await ctx.send(f'{member.mention}, *nudge*, Your {time} minute timer to start you practice session has ended!')
+                                await ctx.send(f'{member.mention}, *nudge*, Your {time} minute timer to start your practice session has ended!')
                             if practice_room["member"] == member.id and practice_room["started_time"] != None:
                                 await ctx.send(f'{member.mention}, Your {time} minute timer to start you practice session has ended, but you\'re already practicing. Good for you!')
                     elif practice_room["member"] == member.id and practice_room["duration"] > 0:
@@ -232,7 +232,7 @@ class Practice(commands.Cog):
         else:
             await ctx.send(f'{member.mention}, song not set. Please provide a song name')
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['current'])
     async def np(self, ctx):
         member = ctx.author
         async with self.bot.pg_conn.acquire() as con:
