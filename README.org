@@ -2,10 +2,8 @@
 
 The main purpose of this discord bot is to create a practice room functionality in which people can join a practice room and practice in an environment where others can then join, listen, and encourage.
 
-** Adding the Bot to your Server
+** Installation/Adding the bot to your server
 Use the [[https://discordapp.com/oauth2/authorize?client_id=734996438462890006&scope=bot][Invite Link]] to add the bot to your server.
-
-** Usage
 
 *** Adding Practice Channels
 
@@ -15,28 +13,32 @@ There are many possible ways to use the bot on your server. If you have a large 
 
 This way, you don't clutter your server with too many text channels and there are still enough voice channels. If you need more, simply add them.
 
-From here, you need to manually tell the bot what to count as practice channel. In order to do this, you need to first make sure that you enable "Developer Mode" so that you can access the voice channel id's. Enable this through the bottom of the "Appearance" pane in Discord settings. Once this is enabled, go back and right click on the voice channel you wish to add and then use the command =$add_practice_channel <voice channel id> <text channel id>= to add the channel to the bot's list of practice channels.
+From here, you need to manually tell the bot what to count as practice channel. In order to do this, you need to first make sure that you enable "Developer Mode" so that you can access the voice channel id's. Enable this through the bottom of the "Appearance" pane in your personal Discord settings. Once this is enabled, go back and right click on the voice channel you wish to add and then use the command =$add_practice_channel <voice channel id> <text channel id>= to add the channel to the bot's list of practice channels.
 
-It will look something like this: =$add_practice_channel 87893798127 19283791237=
+It will look something like this: =$add_practice_channel 87892838127 19218791237=
 
-*** Using the Practice Channels
+You will only need to do this once.
+
+To remove a channel pair use =$remove_practice_room <voice channel id>=
+
+** Usage
 
 In order to start using practice channels, simply join the channel and type =$practice= in the appropriate text channel. For more info on other commands you can use, type =$help=.
 
-**** Setting the Song
+*** Setting the Song
 
 Set the song that you're practicing by typing =$song <song name>=. You can use this to tell other people what you're practicing.
 
-**** Excusing Listeners
+*** Excusing Listeners
 
 Want to be able to talk to or hear other people? Simply excuse them with =$excuse <mention user>=. For example: =$excuse @Pratiser#3600=
 If you want to unexcuse someone simply do the same thing but use =$unexcuse=
 
-**** "Now Playing"
+*** "Now Playing"
 
 If you have a practice session going, then you or anyone else in the voice channel can type =$np= (which stands for "now playing") to see how long you've been practicing and what you're practicing.
 
-**** Stopping a Practice Session
+*** Stopping a Practice Session
 
 Finally, if you're done practicing, use =$stop= to stop a practice session and let other people use the practice room. Alternatively, you can simply leave the practice room and the bot wll end the practice session for you.
 
